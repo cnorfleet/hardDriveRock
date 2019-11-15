@@ -44,7 +44,7 @@ module spi(input  logic chipSelect,
 	logic[23:0] readData;
 	
 	// assert chipSelect
-	// shift in frequency in two bytes
+	// shift in frequency in two bytes (MSB first)
 	// shift in volume in one byte
 	// deassert chipSelect or just repeat
 	always_ff @(posedge sck) begin
