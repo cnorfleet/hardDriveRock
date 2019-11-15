@@ -7,7 +7,11 @@
 #include "SAM4S4B_libraries/SAM4S4B.h"
 
 #define SONGMODESWITCH  PIO_PB2
-#define CHIP_SELECT_PIN PIO_PA15
+#define CHIP_SELECT_PIN PIO_PB10 // PB10 -> P126
+// SPCK: PA14 -> P113
+// MOSI: PA13 -> P112
+// MISO: PA12 -> P111
+// NPCS0 (not used): PA11 -> P110
 
 #define CH_ID     TC_CH0_ID
 #define CLK_ID    TC_CLK4_ID
