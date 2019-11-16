@@ -231,19 +231,20 @@ void playNote(int pitch, int dur) {
 	uint32_t noteEnd = dur * (CLK_SPEED / 1e3);
 	tcSetRC_compare(CH_ID, noteEnd);
 	
-	// TODO: switch freq to the tune word?
-	char FREQ_BYTE_1 = pitch >> 8;
-	char FREQ_BYTE_2 = pitch;
-	char VOLUME_BYTE = (pitch == 0) ? 0b00000000 : 0b11111111; // pitch 0 is rest
+	// note: tuneWord of 1 corresponds to 2.384 Hz = ((40MHz)/2^8)/2^16
+	uint16_t tuneWord = pitch / 2.38418579;
+	char tune_word_byte_1 = tuneWord >> 8;
+	char tune_word_byte_2 = tuneWord;
+	char volume_byte = (pitch == 0) ? 0b00000000 : 0b11111111; // pitch 0 is rest
 	
 	// assert chipSelect
 	// shift in frequency in two bytes
 	// shift in volume in one byte
 	// deassert chipSelect
 	pioDigitalWrite(CHIP_SELECT_PIN, 1);
-	spiSendReceive(FREQ_BYTE_1);
-	spiSendReceive(FREQ_BYTE_2);
-	spiSendReceive(VOLUME_BYTE);
+	spiSendReceive(tune_word_byte_1);
+	spiSendReceive(tune_word_byte_2);
+	spiSendReceive(volume_byte);
 	pioDigitalWrite(CHIP_SELECT_PIN, 0);
 	
 	while(tcCheckRC_compare(CH_ID)) { }

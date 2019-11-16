@@ -4,7 +4,7 @@ module top(input  logic clk, reset,
 	// Erik Meike and Caleb Norfleet
 	// FPGA stuff for uPs final project
 	
-	logic [11:0] freq;       // frequency of note signal
+	logic [15:0] tuneWord;   // frequency of note signal
 	logic [7:0]  wave;       // note signal. signed number
 	logic [7:0]  volume;     // unsigned volume of output
 	logic [7:0]  currentVol; // volume only updated after every 2^8 clock cycles
@@ -12,8 +12,8 @@ module top(input  logic clk, reset,
 	//logic        carrier;    // output signal.  PWM at 40MHz to achieve amplitude at 156.25 kHz
 	
 	// main modules
-	spi         s(chipSelect, sck, sdi, freq, volume);
-	waveGen    wg(clk, reset, wgEn, freq, wave);
+	spi         s(chipSelect, sck, sdi, tuneWord, volume);
+	waveGen    wg(clk, reset, wgEn, tuneWord, wave);
 	volumeMult vm(wave, volume, amplitude);
 	
 	// control signals
@@ -34,7 +34,7 @@ endmodule
 module spi(input  logic chipSelect,
 			  input  logic sck, 
 			  input  logic sdi,
-			  output logic [11:0] freq
+			  output logic [15:0] tuneWord,
 			  output logic [7:0]  volume);
 	// Caleb Norfleet, cnorfleet@hmc.edu, 11/14/19
 	// Accepts frequency and volume input over SPI from ATSAM
@@ -52,7 +52,7 @@ module spi(input  logic chipSelect,
 			readData <= {readData[22:0], sdi}
 			dataCount = dataCount + 5'b1;
 			if(dataCount = 5'd24) begin
-				freq   <= readData[19:8];
+				tuneWord   <= readData[23:8];
 				volume <= readData[7:0];
 				dataCount = 5'b0;
 			end
@@ -62,18 +62,17 @@ module spi(input  logic chipSelect,
 endmodule
 
 module waveGen(input  logic clk, reset, wgEn,
-					input  logic[11:0] freq,
+					input  logic[15:0] tuneWord,
 					output logic[7:0]  wave)
 	// Caleb Norfleet, cnorfleet@hmc.edu, 11/14/19
 	// generates sinusoid at frequency (outputs signed number)
 	
-	logic[11:0] tuneWord;
 	logic[15:0] phaseAcc;        // phase accumulator
 	logic[7:0]  LUTcos[65535:0]; // look up table
 	
 	always_ff @(posedge clk) begin
 		if(reset)     phaseAcc <= 16'b0;
-		else if(wgEn) phaseAcc <= phaseAcc + {4'b0,tuneWord};
+		else if(wgEn) phaseAcc <= phaseAcc + tuneWord;
 	end
 	
 	initial begin
