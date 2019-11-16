@@ -63,20 +63,33 @@ endmodule
 
 module waveGen(input  logic clk, reset, wgEn,
 					input  logic[15:0] tuneWord,
-					output logic[7:0]  wave)
+					output logic       sign,
+					output logic[7:0]  amplitude)
 	// Caleb Norfleet, cnorfleet@hmc.edu, 11/14/19
-	// generates sinusoid at frequency (outputs signed number)
+	// generates sinusoid based on tuneWord
 	
-	logic[15:0] phaseAcc;        // phase accumulator
-	logic[7:0]  LUTcos[65535:0]; // look up table
+	logic[15:0] phaseAcc;             // phase accumulator
+	logic[7:0]  LUTsine[(2**10-1):0]; // look up table
+	
+	logic nextSign;
+	logic[11:0] nextPhase;
+	assign nextSign = phaseAcc[15]; // neg in second half
+	assign nextPhase = (phaseAcc[14]) ? (12'h000 - phaseAcc[13:4]) : (phaseAcc[13:4]);
+	// ^ note that phase is adjusted since we're using a 1/4 phase LUT
 	
 	always_ff @(posedge clk) begin
-		if(reset)     phaseAcc <= 16'b0;
-		else if(wgEn) phaseAcc <= phaseAcc + tuneWord;
+		if(reset) begin
+			phaseAcc <= 16'b0;
+			wave     <= 8'b0;
+		else if(wgEn) begin
+			phaseAcc <= phaseAcc + tuneWord;
+			amplitude <= LUTsine[nextPhase];
+			sign <= nextSign;
+		end
 	end
 	
 	initial begin
-		$readmemb("LUTcos.txt", LUTcos);
+		$readmemb("LUTsine.txt", LUTsine);
 	end
 	
 endmodule
