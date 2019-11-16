@@ -1,6 +1,6 @@
 module top(input  logic clk, reset,
-			  input  logic chipSelect, sck, sdi);
-//			  output logic carrier);
+			  input  logic chipSelect, sck, sdi,
+			  output logic carrierOut);
 	// Erik Meike and Caleb Norfleet
 	// FPGA stuff for uPs final project
 	
@@ -16,11 +16,12 @@ module top(input  logic clk, reset,
 	spi s(chipSelect, sck, sdi, tuneWord, volume);
 	waveGen wg(clk, reset, wgEn, tuneWord, sign, amplitude);
 	logic [15:0] mult;
-	assign mult = ({8'b0, amplitude} * {8'b0, volume});
+	assign mult = ({8'b0, amplitude} * {8'b0, currentVol});
 	assign magnitude = (mult[7] & ~&mult[15:8]) ? (mult[15:8] + 8'b1) : (mult[15:8]);
 	// ^ note: rounding with saturation
-	pwmGen pg(clk, reset, waveCounter, sign, magnitude, carrier);
+	pwmGen pg(clk, reset, waveCounter, magnitude, carrier);
 	
+	assign carrierOut = carrier; // TODO: remove this debug signal
 	// TODO: need to generate FET driver signals based on sign and carrier
 	
 	// control signals
@@ -56,9 +57,9 @@ module spi(input  logic chipSelect,
 	// deassert chipSelect or just repeat
 	always_ff @(posedge sck) begin
 		if(chipSelect) begin
-			readData <= {readData[22:0], sdi}
+			readData <= {readData[22:0], sdi};
 			dataCount = dataCount + 5'b1;
-			if(dataCount = 5'd24) begin
+			if(dataCount == 5'd24) begin
 				tuneWord   <= readData[23:8];
 				volume <= readData[7:0];
 				dataCount = 5'b0;
@@ -71,7 +72,7 @@ endmodule
 module waveGen(input  logic clk, reset, wgEn,
 					input  logic[15:0] tuneWord,
 					output logic       sign,
-					output logic[7:0]  amplitude)
+					output logic[7:0]  amplitude);
 	// Caleb Norfleet, cnorfleet@hmc.edu, 11/14/19
 	// generates sinusoid based on tuneWord
 	
@@ -86,12 +87,13 @@ module waveGen(input  logic clk, reset, wgEn,
 	
 	always_ff @(posedge clk) begin
 		if(reset) begin
-			phaseAcc <= 16'b0;
-			wave     <= 8'b0;
+			phaseAcc  <= 16'b0;
+			amplitude <= 8'b0;
+		end
 		else if(wgEn) begin
-			phaseAcc <= phaseAcc + tuneWord;
+			phaseAcc  <= phaseAcc + tuneWord;
 			amplitude <= LUTsine[nextPhase];
-			sign <= nextSign;
+			sign      <= nextSign;
 		end
 	end
 	

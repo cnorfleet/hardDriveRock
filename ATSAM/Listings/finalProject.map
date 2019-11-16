@@ -34,6 +34,7 @@ Section Cross References
     finalproject.o(i.playNote) refers to dmul.o(x$fpl$dmul) for __aeabi_dmul
     finalproject.o(i.playNote) refers to dfixu.o(x$fpl$dfixu) for __aeabi_d2uiz
     finalproject.o(i.playNote) refers to finalproject.o(i.tcSetRC_compare) for tcSetRC_compare
+    finalproject.o(i.playNote) refers to ddiv.o(x$fpl$ddiv) for __aeabi_ddiv
     finalproject.o(i.playNote) refers to finalproject.o(i.pioDigitalWrite) for pioDigitalWrite
     finalproject.o(i.playNote) refers to finalproject.o(i.spiSendReceive) for spiSendReceive
     finalproject.o(i.playNote) refers to finalproject.o(i.tcCheckRC_compare) for tcCheckRC_compare
@@ -80,6 +81,11 @@ Section Cross References
     d2f.o(x$fpl$d2f) refers (Special) to usenofp.o(x$fpl$usenofp) for __I$use$fp
     d2f.o(x$fpl$d2f) refers to fretinf.o(x$fpl$fretinf) for __fpl_fretinf
     d2f.o(x$fpl$d2f) refers to dnaninf.o(x$fpl$dnaninf) for __fpl_dnaninf
+    ddiv.o(x$fpl$drdiv) refers (Special) to usenofp.o(x$fpl$usenofp) for __I$use$fp
+    ddiv.o(x$fpl$drdiv) refers to ddiv.o(x$fpl$ddiv) for ddiv_entry
+    ddiv.o(x$fpl$ddiv) refers (Special) to usenofp.o(x$fpl$usenofp) for __I$use$fp
+    ddiv.o(x$fpl$ddiv) refers to dretinf.o(x$fpl$dretinf) for __fpl_dretinf
+    ddiv.o(x$fpl$ddiv) refers to dnaninf.o(x$fpl$dnaninf) for __fpl_dnaninf
     dfixu.o(x$fpl$dfixu) refers (Special) to usenofp.o(x$fpl$usenofp) for __I$use$fp
     dfixu.o(x$fpl$dfixu) refers to dnaninf.o(x$fpl$dnaninf) for __fpl_dnaninf
     dfixu.o(x$fpl$dfixur) refers (Special) to usenofp.o(x$fpl$usenofp) for __I$use$fp
@@ -255,53 +261,54 @@ Image Symbol Table
     Symbol Name                              Value     Ov Type        Size  Object(Section)
 
     ../clib/angel/boardlib.s                 0x00000000   Number         0  boardinit2.o ABSOLUTE
-    ../clib/angel/boardlib.s                 0x00000000   Number         0  boardinit3.o ABSOLUTE
     ../clib/angel/boardlib.s                 0x00000000   Number         0  boardshut.o ABSOLUTE
+    ../clib/angel/boardlib.s                 0x00000000   Number         0  boardinit3.o ABSOLUTE
     ../clib/angel/boardlib.s                 0x00000000   Number         0  boardinit1.o ABSOLUTE
     ../clib/angel/handlers.s                 0x00000000   Number         0  __scatter_zi.o ABSOLUTE
-    ../clib/angel/kernel.s                   0x00000000   Number         0  rtexit2.o ABSOLUTE
     ../clib/angel/kernel.s                   0x00000000   Number         0  __rtentry4.o ABSOLUTE
-    ../clib/angel/kernel.s                   0x00000000   Number         0  __rtentry.o ABSOLUTE
-    ../clib/angel/kernel.s                   0x00000000   Number         0  rtexit.o ABSOLUTE
     ../clib/angel/kernel.s                   0x00000000   Number         0  __rtentry2.o ABSOLUTE
+    ../clib/angel/kernel.s                   0x00000000   Number         0  __rtentry.o ABSOLUTE
+    ../clib/angel/kernel.s                   0x00000000   Number         0  rtexit2.o ABSOLUTE
+    ../clib/angel/kernel.s                   0x00000000   Number         0  rtexit.o ABSOLUTE
     ../clib/angel/rt.s                       0x00000000   Number         0  rt_raise.o ABSOLUTE
     ../clib/angel/scatter.s                  0x00000000   Number         0  __scatter.o ABSOLUTE
     ../clib/angel/startup.s                  0x00000000   Number         0  __main.o ABSOLUTE
-    ../clib/angel/sys.s                      0x00000000   Number         0  indicate_semi.o ABSOLUTE
-    ../clib/angel/sys.s                      0x00000000   Number         0  sys_stackheap_outer.o ABSOLUTE
     ../clib/angel/sys.s                      0x00000000   Number         0  use_no_semi.o ABSOLUTE
     ../clib/angel/sys.s                      0x00000000   Number         0  libspace.o ABSOLUTE
+    ../clib/angel/sys.s                      0x00000000   Number         0  sys_stackheap_outer.o ABSOLUTE
+    ../clib/angel/sys.s                      0x00000000   Number         0  indicate_semi.o ABSOLUTE
+    ../clib/angel/sysapp.c                   0x00000000   Number         0  sys_command.o ABSOLUTE
     ../clib/angel/sysapp.c                   0x00000000   Number         0  sys_exit.o ABSOLUTE
     ../clib/angel/sysapp.c                   0x00000000   Number         0  sys_wrch.o ABSOLUTE
-    ../clib/angel/sysapp.c                   0x00000000   Number         0  sys_command.o ABSOLUTE
     ../clib/armsys.c                         0x00000000   Number         0  argv_veneer.o ABSOLUTE
     ../clib/armsys.c                         0x00000000   Number         0  argv_veneer.o ABSOLUTE
-    ../clib/armsys.c                         0x00000000   Number         0  _get_argv_nomalloc.o ABSOLUTE
     ../clib/armsys.c                         0x00000000   Number         0  no_argv.o ABSOLUTE
+    ../clib/armsys.c                         0x00000000   Number         0  _get_argv_nomalloc.o ABSOLUTE
     ../clib/heapalloc.c                      0x00000000   Number         0  hrguard.o ABSOLUTE
     ../clib/heapaux.c                        0x00000000   Number         0  heapauxi.o ABSOLUTE
-    ../clib/libinit.s                        0x00000000   Number         0  libinit.o ABSOLUTE
     ../clib/libinit.s                        0x00000000   Number         0  libinit2.o ABSOLUTE
+    ../clib/libinit.s                        0x00000000   Number         0  libinit.o ABSOLUTE
     ../clib/libinit.s                        0x00000000   Number         0  libshutdown2.o ABSOLUTE
     ../clib/libinit.s                        0x00000000   Number         0  libshutdown.o ABSOLUTE
     ../clib/memcpset.s                       0x00000000   Number         0  rt_memcpy_w.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_cppl_inner.o ABSOLUTE
     ../clib/signal.c                         0x00000000   Number         0  defsig_other.o ABSOLUTE
     ../clib/signal.c                         0x00000000   Number         0  defsig_segv_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_general.o ABSOLUTE
     ../clib/signal.c                         0x00000000   Number         0  defsig_pvfn_inner.o ABSOLUTE
     ../clib/signal.c                         0x00000000   Number         0  defsig_stak_inner.o ABSOLUTE
     ../clib/signal.c                         0x00000000   Number         0  defsig_rtred_inner.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_fpe_inner.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_abrt_inner.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_rtmem_outer.o ABSOLUTE
     ../clib/signal.c                         0x00000000   Number         0  defsig_rtmem_formal.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_cppl_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_rtmem_outer.o ABSOLUTE
     ../clib/signal.c                         0x00000000   Number         0  __raise.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_general.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_abrt_inner.o ABSOLUTE
     ../clib/signal.c                         0x00000000   Number         0  defsig_exit.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_fpe_inner.o ABSOLUTE
     ../clib/signal.c                         0x00000000   Number         0  defsig_rtmem_inner.o ABSOLUTE
     ../clib/signal.s                         0x00000000   Number         0  defsig.o ABSOLUTE
     ../clib/stdlib.c                         0x00000000   Number         0  exit.o ABSOLUTE
     ../fplib/d2f.s                           0x00000000   Number         0  d2f.o ABSOLUTE
+    ../fplib/ddiv.s                          0x00000000   Number         0  ddiv.o ABSOLUTE
     ../fplib/dfixu.s                         0x00000000   Number         0  dfixu.o ABSOLUTE
     ../fplib/dflt.s                          0x00000000   Number         0  dflt_clz.o ABSOLUTE
     ../fplib/dmul.s                          0x00000000   Number         0  dmul.o ABSOLUTE
@@ -382,28 +389,30 @@ Image Symbol Table
     i.pioPinToPort                           0x00400412   Section        0  finalproject.o(i.pioPinToPort)
     i.pioPortToBase                          0x00400418   Section        0  finalproject.o(i.pioPortToBase)
     i.playNote                               0x0040042c   Section        0  finalproject.o(i.playNote)
-    i.pmcDisableWriteProtection              0x004004a8   Section        0  finalproject.o(i.pmcDisableWriteProtection)
-    i.pmcEnablePeriph                        0x004004b8   Section        0  finalproject.o(i.pmcEnablePeriph)
-    i.pmcMainClkBypass                       0x004004c8   Section        0  finalproject.o(i.pmcMainClkBypass)
-    i.samInit                                0x00400504   Section        0  finalproject.o(i.samInit)
-    i.spiInit                                0x00400514   Section        0  finalproject.o(i.spiInit)
-    i.spiSendReceive                         0x00400584   Section        0  finalproject.o(i.spiSendReceive)
-    i.tcBlockToBlockBase                     0x004005ac   Section        0  finalproject.o(i.tcBlockToBlockBase)
-    i.tcChannelInit                          0x004005c0   Section        0  finalproject.o(i.tcChannelInit)
-    i.tcChannelToBlock                       0x00400626   Section        0  finalproject.o(i.tcChannelToBlock)
-    i.tcChannelToBlockBase                   0x00400630   Section        0  finalproject.o(i.tcChannelToBlockBase)
-    i.tcCheckRC_compare                      0x00400642   Section        0  finalproject.o(i.tcCheckRC_compare)
-    i.tcInit                                 0x00400664   Section        0  finalproject.o(i.tcInit)
-    i.tcResetChannel                         0x00400674   Section        0  finalproject.o(i.tcResetChannel)
-    i.tcSetRC_compare                        0x0040069e   Section        0  finalproject.o(i.tcSetRC_compare)
-    i.wdtDisable                             0x004006c0   Section        0  finalproject.o(i.wdtDisable)
-    x$fpl$dfixu                              0x004006d8   Section       90  dfixu.o(x$fpl$dfixu)
-    x$fpl$dflt                               0x00400732   Section       46  dflt_clz.o(x$fpl$dflt)
-    x$fpl$dmul                               0x00400760   Section      340  dmul.o(x$fpl$dmul)
-    x$fpl$dnaninf                            0x004008b4   Section      156  dnaninf.o(x$fpl$dnaninf)
-    x$fpl$dretinf                            0x00400950   Section       12  dretinf.o(x$fpl$dretinf)
-    .constdata                               0x0040095c   Section     1432  finalproject.o(.constdata)
-    x$fpl$usenofp                            0x0040095c   Section        0  usenofp.o(x$fpl$usenofp)
+    i.pmcDisableWriteProtection              0x004004cc   Section        0  finalproject.o(i.pmcDisableWriteProtection)
+    i.pmcEnablePeriph                        0x004004dc   Section        0  finalproject.o(i.pmcEnablePeriph)
+    i.pmcMainClkBypass                       0x004004ec   Section        0  finalproject.o(i.pmcMainClkBypass)
+    i.samInit                                0x00400528   Section        0  finalproject.o(i.samInit)
+    i.spiInit                                0x00400538   Section        0  finalproject.o(i.spiInit)
+    i.spiSendReceive                         0x004005a8   Section        0  finalproject.o(i.spiSendReceive)
+    i.tcBlockToBlockBase                     0x004005d0   Section        0  finalproject.o(i.tcBlockToBlockBase)
+    i.tcChannelInit                          0x004005e4   Section        0  finalproject.o(i.tcChannelInit)
+    i.tcChannelToBlock                       0x0040064a   Section        0  finalproject.o(i.tcChannelToBlock)
+    i.tcChannelToBlockBase                   0x00400654   Section        0  finalproject.o(i.tcChannelToBlockBase)
+    i.tcCheckRC_compare                      0x00400666   Section        0  finalproject.o(i.tcCheckRC_compare)
+    i.tcInit                                 0x00400688   Section        0  finalproject.o(i.tcInit)
+    i.tcResetChannel                         0x00400698   Section        0  finalproject.o(i.tcResetChannel)
+    i.tcSetRC_compare                        0x004006c2   Section        0  finalproject.o(i.tcSetRC_compare)
+    i.wdtDisable                             0x004006e4   Section        0  finalproject.o(i.wdtDisable)
+    x$fpl$ddiv                               0x004006fc   Section      688  ddiv.o(x$fpl$ddiv)
+    ddiv_entry                               0x00400703   Thumb Code     0  ddiv.o(x$fpl$ddiv)
+    x$fpl$dfixu                              0x004009ac   Section       90  dfixu.o(x$fpl$dfixu)
+    x$fpl$dflt                               0x00400a06   Section       46  dflt_clz.o(x$fpl$dflt)
+    x$fpl$dmul                               0x00400a34   Section      340  dmul.o(x$fpl$dmul)
+    x$fpl$dnaninf                            0x00400b88   Section      156  dnaninf.o(x$fpl$dnaninf)
+    x$fpl$dretinf                            0x00400c24   Section       12  dretinf.o(x$fpl$dretinf)
+    .constdata                               0x00400c30   Section     1432  finalproject.o(.constdata)
+    x$fpl$usenofp                            0x00400c30   Section        0  usenofp.o(x$fpl$usenofp)
     .bss                                     0x20000000   Section       96  libspace.o(.bss)
     HEAP                                     0x20000060   Section      512  startup_sam4s.o(HEAP)
     Heap_Mem                                 0x20000060   Data         512  startup_sam4s.o(HEAP)
@@ -559,36 +568,38 @@ Image Symbol Table
     pioPinToBase                             0x00400401   Thumb Code    18  finalproject.o(i.pioPinToBase)
     pioPinToPort                             0x00400413   Thumb Code     6  finalproject.o(i.pioPinToPort)
     pioPortToBase                            0x00400419   Thumb Code    12  finalproject.o(i.pioPortToBase)
-    playNote                                 0x0040042d   Thumb Code   114  finalproject.o(i.playNote)
-    pmcDisableWriteProtection                0x004004a9   Thumb Code     8  finalproject.o(i.pmcDisableWriteProtection)
-    pmcEnablePeriph                          0x004004b9   Thumb Code    10  finalproject.o(i.pmcEnablePeriph)
-    pmcMainClkBypass                         0x004004c9   Thumb Code    52  finalproject.o(i.pmcMainClkBypass)
-    samInit                                  0x00400505   Thumb Code    16  finalproject.o(i.samInit)
-    spiInit                                  0x00400515   Thumb Code   108  finalproject.o(i.spiInit)
-    spiSendReceive                           0x00400585   Thumb Code    36  finalproject.o(i.spiSendReceive)
-    tcBlockToBlockBase                       0x004005ad   Thumb Code    12  finalproject.o(i.tcBlockToBlockBase)
-    tcChannelInit                            0x004005c1   Thumb Code   102  finalproject.o(i.tcChannelInit)
-    tcChannelToBlock                         0x00400627   Thumb Code    10  finalproject.o(i.tcChannelToBlock)
-    tcChannelToBlockBase                     0x00400631   Thumb Code    18  finalproject.o(i.tcChannelToBlockBase)
-    tcCheckRC_compare                        0x00400643   Thumb Code    34  finalproject.o(i.tcCheckRC_compare)
-    tcInit                                   0x00400665   Thumb Code    16  finalproject.o(i.tcInit)
-    tcResetChannel                           0x00400675   Thumb Code    42  finalproject.o(i.tcResetChannel)
-    tcSetRC_compare                          0x0040069f   Thumb Code    32  finalproject.o(i.tcSetRC_compare)
-    wdtDisable                               0x004006c1   Thumb Code    18  finalproject.o(i.wdtDisable)
-    __aeabi_d2uiz                            0x004006d9   Thumb Code     0  dfixu.o(x$fpl$dfixu)
-    _dfixu                                   0x004006d9   Thumb Code    90  dfixu.o(x$fpl$dfixu)
-    __aeabi_i2d                              0x00400733   Thumb Code     0  dflt_clz.o(x$fpl$dflt)
-    _dflt                                    0x00400733   Thumb Code    46  dflt_clz.o(x$fpl$dflt)
-    __aeabi_dmul                             0x00400761   Thumb Code     0  dmul.o(x$fpl$dmul)
-    _dmul                                    0x00400761   Thumb Code   332  dmul.o(x$fpl$dmul)
-    __fpl_dnaninf                            0x004008b5   Thumb Code   156  dnaninf.o(x$fpl$dnaninf)
-    __fpl_dretinf                            0x00400951   Thumb Code    12  dretinf.o(x$fpl$dretinf)
-    __I$use$fp                               0x0040095c   Number         0  usenofp.o(x$fpl$usenofp)
-    song1                                    0x0040095c   Data         872  finalproject.o(.constdata)
-    song2                                    0x00400cc4   Data         488  finalproject.o(.constdata)
-    notes                                    0x00400eac   Data          28  finalproject.o(.constdata)
-    Region$$Table$$Base                      0x00400ef4   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x00400f04   Number         0  anon$$obj.o(Region$$Table)
+    playNote                                 0x0040042d   Thumb Code   144  finalproject.o(i.playNote)
+    pmcDisableWriteProtection                0x004004cd   Thumb Code     8  finalproject.o(i.pmcDisableWriteProtection)
+    pmcEnablePeriph                          0x004004dd   Thumb Code    10  finalproject.o(i.pmcEnablePeriph)
+    pmcMainClkBypass                         0x004004ed   Thumb Code    52  finalproject.o(i.pmcMainClkBypass)
+    samInit                                  0x00400529   Thumb Code    16  finalproject.o(i.samInit)
+    spiInit                                  0x00400539   Thumb Code   108  finalproject.o(i.spiInit)
+    spiSendReceive                           0x004005a9   Thumb Code    36  finalproject.o(i.spiSendReceive)
+    tcBlockToBlockBase                       0x004005d1   Thumb Code    12  finalproject.o(i.tcBlockToBlockBase)
+    tcChannelInit                            0x004005e5   Thumb Code   102  finalproject.o(i.tcChannelInit)
+    tcChannelToBlock                         0x0040064b   Thumb Code    10  finalproject.o(i.tcChannelToBlock)
+    tcChannelToBlockBase                     0x00400655   Thumb Code    18  finalproject.o(i.tcChannelToBlockBase)
+    tcCheckRC_compare                        0x00400667   Thumb Code    34  finalproject.o(i.tcCheckRC_compare)
+    tcInit                                   0x00400689   Thumb Code    16  finalproject.o(i.tcInit)
+    tcResetChannel                           0x00400699   Thumb Code    42  finalproject.o(i.tcResetChannel)
+    tcSetRC_compare                          0x004006c3   Thumb Code    32  finalproject.o(i.tcSetRC_compare)
+    wdtDisable                               0x004006e5   Thumb Code    18  finalproject.o(i.wdtDisable)
+    __aeabi_ddiv                             0x004006fd   Thumb Code     0  ddiv.o(x$fpl$ddiv)
+    _ddiv                                    0x004006fd   Thumb Code   552  ddiv.o(x$fpl$ddiv)
+    __aeabi_d2uiz                            0x004009ad   Thumb Code     0  dfixu.o(x$fpl$dfixu)
+    _dfixu                                   0x004009ad   Thumb Code    90  dfixu.o(x$fpl$dfixu)
+    __aeabi_i2d                              0x00400a07   Thumb Code     0  dflt_clz.o(x$fpl$dflt)
+    _dflt                                    0x00400a07   Thumb Code    46  dflt_clz.o(x$fpl$dflt)
+    __aeabi_dmul                             0x00400a35   Thumb Code     0  dmul.o(x$fpl$dmul)
+    _dmul                                    0x00400a35   Thumb Code   332  dmul.o(x$fpl$dmul)
+    __fpl_dnaninf                            0x00400b89   Thumb Code   156  dnaninf.o(x$fpl$dnaninf)
+    __fpl_dretinf                            0x00400c25   Thumb Code    12  dretinf.o(x$fpl$dretinf)
+    __I$use$fp                               0x00400c30   Number         0  usenofp.o(x$fpl$usenofp)
+    song1                                    0x00400c30   Data         872  finalproject.o(.constdata)
+    song2                                    0x00400f98   Data         488  finalproject.o(.constdata)
+    notes                                    0x00401180   Data          28  finalproject.o(.constdata)
+    Region$$Table$$Base                      0x004011c8   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x004011d8   Number         0  anon$$obj.o(Region$$Table)
     __libspace_start                         0x20000000   Data          96  libspace.o(.bss)
     __temporary_stack_top$libspace           0x20000060   Data           0  libspace.o(.bss)
 
@@ -600,67 +611,67 @@ Memory Map of the image
 
   Image Entry point : 0x0040014d
 
-  Load Region LR_1 (Base: 0x00400000, Size: 0x00000f04, Max: 0xffffffff, ABSOLUTE)
+  Load Region LR_1 (Base: 0x00400000, Size: 0x000011d8, Max: 0xffffffff, ABSOLUTE)
 
-    Execution Region ER_RO (Exec base: 0x00400000, Load base: 0x00400000, Size: 0x00000f04, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_RO (Exec base: 0x00400000, Load base: 0x00400000, Size: 0x000011d8, Max: 0xffffffff, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x00400000   0x00400000   0x000000cc   Data   RO          378    RESET               startup_sam4s.o
     0x004000cc   0x004000cc   0x00000008   Code   RO          610  * !!!main             c_w.l(__main.o)
-    0x004000d4   0x004000d4   0x00000034   Code   RO          802    !!!scatter          c_w.l(__scatter.o)
-    0x00400108   0x00400108   0x0000001c   Code   RO          804    !!handler_zi        c_w.l(__scatter_zi.o)
-    0x00400124   0x00400124   0x00000002   Code   RO          672    .ARM.Collect$$libinit$$00000000  c_w.l(libinit.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          679    .ARM.Collect$$libinit$$00000002  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          681    .ARM.Collect$$libinit$$00000004  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          684    .ARM.Collect$$libinit$$0000000A  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          686    .ARM.Collect$$libinit$$0000000C  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          688    .ARM.Collect$$libinit$$0000000E  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          691    .ARM.Collect$$libinit$$00000011  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          693    .ARM.Collect$$libinit$$00000013  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          695    .ARM.Collect$$libinit$$00000015  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          697    .ARM.Collect$$libinit$$00000017  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          699    .ARM.Collect$$libinit$$00000019  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          701    .ARM.Collect$$libinit$$0000001B  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          703    .ARM.Collect$$libinit$$0000001D  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          705    .ARM.Collect$$libinit$$0000001F  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          707    .ARM.Collect$$libinit$$00000021  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          709    .ARM.Collect$$libinit$$00000023  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          711    .ARM.Collect$$libinit$$00000025  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          715    .ARM.Collect$$libinit$$0000002C  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          717    .ARM.Collect$$libinit$$0000002E  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          719    .ARM.Collect$$libinit$$00000030  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000000   Code   RO          721    .ARM.Collect$$libinit$$00000032  c_w.l(libinit2.o)
-    0x00400126   0x00400126   0x00000002   Code   RO          722    .ARM.Collect$$libinit$$00000033  c_w.l(libinit2.o)
-    0x00400128   0x00400128   0x00000002   Code   RO          742    .ARM.Collect$$libshutdown$$00000000  c_w.l(libshutdown.o)
-    0x0040012a   0x0040012a   0x00000000   Code   RO          755    .ARM.Collect$$libshutdown$$00000002  c_w.l(libshutdown2.o)
-    0x0040012a   0x0040012a   0x00000000   Code   RO          757    .ARM.Collect$$libshutdown$$00000004  c_w.l(libshutdown2.o)
-    0x0040012a   0x0040012a   0x00000000   Code   RO          760    .ARM.Collect$$libshutdown$$00000007  c_w.l(libshutdown2.o)
-    0x0040012a   0x0040012a   0x00000000   Code   RO          763    .ARM.Collect$$libshutdown$$0000000A  c_w.l(libshutdown2.o)
-    0x0040012a   0x0040012a   0x00000000   Code   RO          765    .ARM.Collect$$libshutdown$$0000000C  c_w.l(libshutdown2.o)
-    0x0040012a   0x0040012a   0x00000000   Code   RO          768    .ARM.Collect$$libshutdown$$0000000F  c_w.l(libshutdown2.o)
-    0x0040012a   0x0040012a   0x00000002   Code   RO          769    .ARM.Collect$$libshutdown$$00000010  c_w.l(libshutdown2.o)
-    0x0040012c   0x0040012c   0x00000000   Code   RO          638    .ARM.Collect$$rtentry$$00000000  c_w.l(__rtentry.o)
-    0x0040012c   0x0040012c   0x00000000   Code   RO          649    .ARM.Collect$$rtentry$$00000002  c_w.l(__rtentry2.o)
-    0x0040012c   0x0040012c   0x00000006   Code   RO          661    .ARM.Collect$$rtentry$$00000004  c_w.l(__rtentry4.o)
-    0x00400132   0x00400132   0x00000000   Code   RO          651    .ARM.Collect$$rtentry$$00000009  c_w.l(__rtentry2.o)
-    0x00400132   0x00400132   0x00000004   Code   RO          652    .ARM.Collect$$rtentry$$0000000A  c_w.l(__rtentry2.o)
-    0x00400136   0x00400136   0x00000000   Code   RO          654    .ARM.Collect$$rtentry$$0000000C  c_w.l(__rtentry2.o)
-    0x00400136   0x00400136   0x00000008   Code   RO          655    .ARM.Collect$$rtentry$$0000000D  c_w.l(__rtentry2.o)
-    0x0040013e   0x0040013e   0x00000002   Code   RO          676    .ARM.Collect$$rtexit$$00000000  c_w.l(rtexit.o)
-    0x00400140   0x00400140   0x00000000   Code   RO          724    .ARM.Collect$$rtexit$$00000002  c_w.l(rtexit2.o)
-    0x00400140   0x00400140   0x00000004   Code   RO          725    .ARM.Collect$$rtexit$$00000003  c_w.l(rtexit2.o)
-    0x00400144   0x00400144   0x00000006   Code   RO          726    .ARM.Collect$$rtexit$$00000004  c_w.l(rtexit2.o)
+    0x004000d4   0x004000d4   0x00000034   Code   RO          806    !!!scatter          c_w.l(__scatter.o)
+    0x00400108   0x00400108   0x0000001c   Code   RO          808    !!handler_zi        c_w.l(__scatter_zi.o)
+    0x00400124   0x00400124   0x00000002   Code   RO          676    .ARM.Collect$$libinit$$00000000  c_w.l(libinit.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          683    .ARM.Collect$$libinit$$00000002  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          685    .ARM.Collect$$libinit$$00000004  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          688    .ARM.Collect$$libinit$$0000000A  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          690    .ARM.Collect$$libinit$$0000000C  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          692    .ARM.Collect$$libinit$$0000000E  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          695    .ARM.Collect$$libinit$$00000011  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          697    .ARM.Collect$$libinit$$00000013  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          699    .ARM.Collect$$libinit$$00000015  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          701    .ARM.Collect$$libinit$$00000017  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          703    .ARM.Collect$$libinit$$00000019  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          705    .ARM.Collect$$libinit$$0000001B  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          707    .ARM.Collect$$libinit$$0000001D  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          709    .ARM.Collect$$libinit$$0000001F  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          711    .ARM.Collect$$libinit$$00000021  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          713    .ARM.Collect$$libinit$$00000023  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          715    .ARM.Collect$$libinit$$00000025  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          719    .ARM.Collect$$libinit$$0000002C  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          721    .ARM.Collect$$libinit$$0000002E  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          723    .ARM.Collect$$libinit$$00000030  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000000   Code   RO          725    .ARM.Collect$$libinit$$00000032  c_w.l(libinit2.o)
+    0x00400126   0x00400126   0x00000002   Code   RO          726    .ARM.Collect$$libinit$$00000033  c_w.l(libinit2.o)
+    0x00400128   0x00400128   0x00000002   Code   RO          746    .ARM.Collect$$libshutdown$$00000000  c_w.l(libshutdown.o)
+    0x0040012a   0x0040012a   0x00000000   Code   RO          759    .ARM.Collect$$libshutdown$$00000002  c_w.l(libshutdown2.o)
+    0x0040012a   0x0040012a   0x00000000   Code   RO          761    .ARM.Collect$$libshutdown$$00000004  c_w.l(libshutdown2.o)
+    0x0040012a   0x0040012a   0x00000000   Code   RO          764    .ARM.Collect$$libshutdown$$00000007  c_w.l(libshutdown2.o)
+    0x0040012a   0x0040012a   0x00000000   Code   RO          767    .ARM.Collect$$libshutdown$$0000000A  c_w.l(libshutdown2.o)
+    0x0040012a   0x0040012a   0x00000000   Code   RO          769    .ARM.Collect$$libshutdown$$0000000C  c_w.l(libshutdown2.o)
+    0x0040012a   0x0040012a   0x00000000   Code   RO          772    .ARM.Collect$$libshutdown$$0000000F  c_w.l(libshutdown2.o)
+    0x0040012a   0x0040012a   0x00000002   Code   RO          773    .ARM.Collect$$libshutdown$$00000010  c_w.l(libshutdown2.o)
+    0x0040012c   0x0040012c   0x00000000   Code   RO          642    .ARM.Collect$$rtentry$$00000000  c_w.l(__rtentry.o)
+    0x0040012c   0x0040012c   0x00000000   Code   RO          653    .ARM.Collect$$rtentry$$00000002  c_w.l(__rtentry2.o)
+    0x0040012c   0x0040012c   0x00000006   Code   RO          665    .ARM.Collect$$rtentry$$00000004  c_w.l(__rtentry4.o)
+    0x00400132   0x00400132   0x00000000   Code   RO          655    .ARM.Collect$$rtentry$$00000009  c_w.l(__rtentry2.o)
+    0x00400132   0x00400132   0x00000004   Code   RO          656    .ARM.Collect$$rtentry$$0000000A  c_w.l(__rtentry2.o)
+    0x00400136   0x00400136   0x00000000   Code   RO          658    .ARM.Collect$$rtentry$$0000000C  c_w.l(__rtentry2.o)
+    0x00400136   0x00400136   0x00000008   Code   RO          659    .ARM.Collect$$rtentry$$0000000D  c_w.l(__rtentry2.o)
+    0x0040013e   0x0040013e   0x00000002   Code   RO          680    .ARM.Collect$$rtexit$$00000000  c_w.l(rtexit.o)
+    0x00400140   0x00400140   0x00000000   Code   RO          728    .ARM.Collect$$rtexit$$00000002  c_w.l(rtexit2.o)
+    0x00400140   0x00400140   0x00000004   Code   RO          729    .ARM.Collect$$rtexit$$00000003  c_w.l(rtexit2.o)
+    0x00400144   0x00400144   0x00000006   Code   RO          730    .ARM.Collect$$rtexit$$00000004  c_w.l(rtexit2.o)
     0x0040014a   0x0040014a   0x00000002   PAD
     0x0040014c   0x0040014c   0x00000040   Code   RO          379  * .text               startup_sam4s.o
     0x0040018c   0x0040018c   0x00000006   Code   RO          608    .text               c_w.l(heapauxi.o)
-    0x00400192   0x00400192   0x0000004a   Code   RO          663    .text               c_w.l(sys_stackheap_outer.o)
-    0x004001dc   0x004001dc   0x00000012   Code   RO          665    .text               c_w.l(exit.o)
+    0x00400192   0x00400192   0x0000004a   Code   RO          667    .text               c_w.l(sys_stackheap_outer.o)
+    0x004001dc   0x004001dc   0x00000012   Code   RO          669    .text               c_w.l(exit.o)
     0x004001ee   0x004001ee   0x00000002   PAD
-    0x004001f0   0x004001f0   0x00000008   Code   RO          673    .text               c_w.l(libspace.o)
-    0x004001f8   0x004001f8   0x0000000c   Code   RO          734    .text               c_w.l(sys_exit.o)
-    0x00400204   0x00400204   0x00000002   Code   RO          745    .text               c_w.l(use_no_semi.o)
-    0x00400206   0x00400206   0x00000000   Code   RO          747    .text               c_w.l(indicate_semi.o)
+    0x004001f0   0x004001f0   0x00000008   Code   RO          677    .text               c_w.l(libspace.o)
+    0x004001f8   0x004001f8   0x0000000c   Code   RO          738    .text               c_w.l(sys_exit.o)
+    0x00400204   0x00400204   0x00000002   Code   RO          749    .text               c_w.l(use_no_semi.o)
+    0x00400206   0x00400206   0x00000000   Code   RO          751    .text               c_w.l(indicate_semi.o)
     0x00400206   0x00400206   0x00000002   PAD
     0x00400208   0x00400208   0x0000002c   Code   RO          388    i.SystemInit        system_sam4s.o
     0x00400234   0x00400234   0x00000088   Code   RO            4    i.main              finalproject.o
@@ -671,43 +682,44 @@ Memory Map of the image
     0x00400400   0x00400400   0x00000012   Code   RO           10    i.pioPinToBase      finalproject.o
     0x00400412   0x00400412   0x00000006   Code   RO           11    i.pioPinToPort      finalproject.o
     0x00400418   0x00400418   0x00000014   Code   RO           12    i.pioPortToBase     finalproject.o
-    0x0040042c   0x0040042c   0x0000007c   Code   RO           14    i.playNote          finalproject.o
-    0x004004a8   0x004004a8   0x00000010   Code   RO           16    i.pmcDisableWriteProtection  finalproject.o
-    0x004004b8   0x004004b8   0x00000010   Code   RO           17    i.pmcEnablePeriph   finalproject.o
-    0x004004c8   0x004004c8   0x0000003c   Code   RO           19    i.pmcMainClkBypass  finalproject.o
-    0x00400504   0x00400504   0x00000010   Code   RO           33    i.samInit           finalproject.o
-    0x00400514   0x00400514   0x00000070   Code   RO           34    i.spiInit           finalproject.o
-    0x00400584   0x00400584   0x00000028   Code   RO           35    i.spiSendReceive    finalproject.o
-    0x004005ac   0x004005ac   0x00000014   Code   RO           37    i.tcBlockToBlockBase  finalproject.o
-    0x004005c0   0x004005c0   0x00000066   Code   RO           38    i.tcChannelInit     finalproject.o
-    0x00400626   0x00400626   0x0000000a   Code   RO           39    i.tcChannelToBlock  finalproject.o
-    0x00400630   0x00400630   0x00000012   Code   RO           40    i.tcChannelToBlockBase  finalproject.o
-    0x00400642   0x00400642   0x00000022   Code   RO           41    i.tcCheckRC_compare  finalproject.o
-    0x00400664   0x00400664   0x00000010   Code   RO           46    i.tcInit            finalproject.o
-    0x00400674   0x00400674   0x0000002a   Code   RO           48    i.tcResetChannel    finalproject.o
-    0x0040069e   0x0040069e   0x00000020   Code   RO           49    i.tcSetRC_compare   finalproject.o
-    0x004006be   0x004006be   0x00000002   PAD
-    0x004006c0   0x004006c0   0x00000018   Code   RO           54    i.wdtDisable        finalproject.o
-    0x004006d8   0x004006d8   0x0000005a   Code   RO          614    x$fpl$dfixu         fz_ws.l(dfixu.o)
-    0x00400732   0x00400732   0x0000002e   Code   RO          619    x$fpl$dflt          fz_ws.l(dflt_clz.o)
-    0x00400760   0x00400760   0x00000154   Code   RO          624    x$fpl$dmul          fz_ws.l(dmul.o)
-    0x004008b4   0x004008b4   0x0000009c   Code   RO          639    x$fpl$dnaninf       fz_ws.l(dnaninf.o)
-    0x00400950   0x00400950   0x0000000c   Code   RO          641    x$fpl$dretinf       fz_ws.l(dretinf.o)
-    0x0040095c   0x0040095c   0x00000000   Code   RO          647    x$fpl$usenofp       fz_ws.l(usenofp.o)
-    0x0040095c   0x0040095c   0x00000598   Data   RO           55    .constdata          finalproject.o
-    0x00400ef4   0x00400ef4   0x00000010   Data   RO          800    Region$$Table       anon$$obj.o
+    0x0040042c   0x0040042c   0x000000a0   Code   RO           14    i.playNote          finalproject.o
+    0x004004cc   0x004004cc   0x00000010   Code   RO           16    i.pmcDisableWriteProtection  finalproject.o
+    0x004004dc   0x004004dc   0x00000010   Code   RO           17    i.pmcEnablePeriph   finalproject.o
+    0x004004ec   0x004004ec   0x0000003c   Code   RO           19    i.pmcMainClkBypass  finalproject.o
+    0x00400528   0x00400528   0x00000010   Code   RO           33    i.samInit           finalproject.o
+    0x00400538   0x00400538   0x00000070   Code   RO           34    i.spiInit           finalproject.o
+    0x004005a8   0x004005a8   0x00000028   Code   RO           35    i.spiSendReceive    finalproject.o
+    0x004005d0   0x004005d0   0x00000014   Code   RO           37    i.tcBlockToBlockBase  finalproject.o
+    0x004005e4   0x004005e4   0x00000066   Code   RO           38    i.tcChannelInit     finalproject.o
+    0x0040064a   0x0040064a   0x0000000a   Code   RO           39    i.tcChannelToBlock  finalproject.o
+    0x00400654   0x00400654   0x00000012   Code   RO           40    i.tcChannelToBlockBase  finalproject.o
+    0x00400666   0x00400666   0x00000022   Code   RO           41    i.tcCheckRC_compare  finalproject.o
+    0x00400688   0x00400688   0x00000010   Code   RO           46    i.tcInit            finalproject.o
+    0x00400698   0x00400698   0x0000002a   Code   RO           48    i.tcResetChannel    finalproject.o
+    0x004006c2   0x004006c2   0x00000020   Code   RO           49    i.tcSetRC_compare   finalproject.o
+    0x004006e2   0x004006e2   0x00000002   PAD
+    0x004006e4   0x004006e4   0x00000018   Code   RO           54    i.wdtDisable        finalproject.o
+    0x004006fc   0x004006fc   0x000002b0   Code   RO          615    x$fpl$ddiv          fz_ws.l(ddiv.o)
+    0x004009ac   0x004009ac   0x0000005a   Code   RO          618    x$fpl$dfixu         fz_ws.l(dfixu.o)
+    0x00400a06   0x00400a06   0x0000002e   Code   RO          623    x$fpl$dflt          fz_ws.l(dflt_clz.o)
+    0x00400a34   0x00400a34   0x00000154   Code   RO          628    x$fpl$dmul          fz_ws.l(dmul.o)
+    0x00400b88   0x00400b88   0x0000009c   Code   RO          643    x$fpl$dnaninf       fz_ws.l(dnaninf.o)
+    0x00400c24   0x00400c24   0x0000000c   Code   RO          645    x$fpl$dretinf       fz_ws.l(dretinf.o)
+    0x00400c30   0x00400c30   0x00000000   Code   RO          651    x$fpl$usenofp       fz_ws.l(usenofp.o)
+    0x00400c30   0x00400c30   0x00000598   Data   RO           55    .constdata          finalproject.o
+    0x004011c8   0x004011c8   0x00000010   Data   RO          804    Region$$Table       anon$$obj.o
 
 
-    Execution Region ER_RW (Exec base: 0x20000000, Load base: 0x00400f04, Size: 0x00000000, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_RW (Exec base: 0x20000000, Load base: 0x004011d8, Size: 0x00000000, Max: 0xffffffff, ABSOLUTE)
 
     **** No section assigned to this execution region ****
 
 
-    Execution Region ER_ZI (Exec base: 0x20000000, Load base: 0x00400f04, Size: 0x00000460, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_ZI (Exec base: 0x20000000, Load base: 0x004011d8, Size: 0x00000460, Max: 0xffffffff, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000        -       0x00000060   Zero   RW          674    .bss                c_w.l(libspace.o)
+    0x20000000        -       0x00000060   Zero   RW          678    .bss                c_w.l(libspace.o)
     0x20000060        -       0x00000200   Zero   RW          377    HEAP                startup_sam4s.o
     0x20000260        -       0x00000200   Zero   RW          376    STACK               startup_sam4s.o
 
@@ -719,12 +731,12 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-      1186         76       1432          0          0      22772   finalproject.o
+      1222         82       1432          0          0      22808   finalproject.o
         64         26        204          0       1024        824   startup_sam4s.o
         44         16          0          0          0        445   system_sam4s.o
 
     ----------------------------------------------------------------------
-      1296        118       1652          0       1024      24041   Object Totals
+      1332        124       1652          0       1024      24077   Object Totals
          0          0         16          0          0          0   (incl. Generated)
          2          0          0          0          0          0   (incl. Padding)
 
@@ -751,6 +763,7 @@ Image component sizes
         12          4          0          0          0         68   sys_exit.o
         74          0          0          0          0         80   sys_stackheap_outer.o
          2          0          0          0          0         68   use_no_semi.o
+       688        140          0          0          0        208   ddiv.o
         90          4          0          0          0         92   dfixu.o
         46          0          0          0          0         68   dflt_clz.o
        340         12          0          0          0        104   dmul.o
@@ -759,7 +772,7 @@ Image component sizes
          0          0          0          0          0          0   usenofp.o
 
     ----------------------------------------------------------------------
-       896         36          0          0         96       1008   Library Totals
+      1584        176          0          0         96       1216   Library Totals
          6          0          0          0          0          0   (incl. Padding)
 
     ----------------------------------------------------------------------
@@ -767,10 +780,10 @@ Image component sizes
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Library Name
 
        246         16          0          0         96        584   c_w.l
-       644         20          0          0          0        424   fz_ws.l
+      1332        160          0          0          0        632   fz_ws.l
 
     ----------------------------------------------------------------------
-       896         36          0          0         96       1008   Library Totals
+      1584        176          0          0         96       1216   Library Totals
 
     ----------------------------------------------------------------------
 
@@ -779,15 +792,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-      2192        154       1652          0       1120      23417   Grand Totals
-      2192        154       1652          0       1120      23417   ELF Image Totals
-      2192        154       1652          0          0          0   ROM Totals
+      2916        300       1652          0       1120      23609   Grand Totals
+      2916        300       1652          0       1120      23609   ELF Image Totals
+      2916        300       1652          0          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                 3844 (   3.75kB)
+    Total RO  Size (Code + RO Data)                 4568 (   4.46kB)
     Total RW  Size (RW Data + ZI Data)              1120 (   1.09kB)
-    Total ROM Size (Code + RO Data + RW Data)       3844 (   3.75kB)
+    Total ROM Size (Code + RO Data + RW Data)       4568 (   4.46kB)
 
 ==============================================================================
 
