@@ -1,20 +1,27 @@
 module top(input  logic clk, reset,
-			  input  logic chipSelect, sck, sdi
-			  output logic carrier);
+			  input  logic chipSelect, sck, sdi);
+//			  output logic carrier);
 	// Erik Meike and Caleb Norfleet
 	// FPGA stuff for uPs final project
 	
 	logic [15:0] tuneWord;   // frequency of note signal
-	logic [7:0]  wave;       // note signal. signed number
+	logic        sign;       // note signal sign
+	logic [7:0]  amplitude;  // note signal amplitude
 	logic [7:0]  volume;     // unsigned volume of output
 	logic [7:0]  currentVol; // volume only updated after every 2^8 clock cycles
-	logic [7:0]  amplitude;  // amplitude of wave after multiplying with volume
-	//logic        carrier;    // output signal.  PWM at 40MHz to achieve amplitude at 156.25 kHz
+	logic [7:0]  magnitude;  // amplitude of wave after multiplying with volume
+	logic        carrier;    // output signal.  PWM at 40MHz to achieve amplitude at 156.25 kHz
 	
 	// main modules
-	spi         s(chipSelect, sck, sdi, tuneWord, volume);
-	waveGen    wg(clk, reset, wgEn, tuneWord, wave);
-	volumeMult vm(wave, volume, amplitude);
+	spi s(chipSelect, sck, sdi, tuneWord, volume);
+	waveGen wg(clk, reset, wgEn, tuneWord, sign, amplitude);
+	logic [15:0] mult;
+	assign mult = ({8'b0, amplitude} * {8'b0, volume});
+	assign magnitude = (mult[7] & ~&mult[15:8]) ? (mult[15:8] + 8'b1) : (mult[15:8]);
+	// ^ note: rounding with saturation
+	pwmGen pg(clk, reset, waveCounter, sign, magnitude, carrier);
+	
+	// TODO: need to generate FET driver signals based on sign and carrier
 	
 	// control signals
 	logic[7:0] waveCounter;
@@ -92,4 +99,17 @@ module waveGen(input  logic clk, reset, wgEn,
 		$readmemb("LUTsine.txt", LUTsine);
 	end
 	
+endmodule
+
+module pwmGen(input  logic      clk, reset,
+				  input  logic[7:0] waveCounter,
+				  input  logic[7:0] magnitude,
+				  output logic      carrier);
+	// Caleb Norfleet, cnorfleet@hmc.edu, 11/15/19
+	// modulates carrier signal based on sine wave
+	
+	always_ff @(posedge clk) begin
+		carrier <= (~reset & (waveCounter < magnitude));
+		// PWM carrier by magnitude
+	end
 endmodule
