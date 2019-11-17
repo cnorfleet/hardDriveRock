@@ -44,7 +44,6 @@ module spi(input  logic chipSelect,
 			  input  logic sdi,
 			  output logic [15:0] tuneWord,
 			  output logic [7:0]  volume);
-	// Caleb Norfleet, cnorfleet@hmc.edu, 11/14/19
 	// Accepts frequency and volume input over SPI from ATSAM
 	// Internal freq and volume only updated after full packet recieved
 	
@@ -73,7 +72,6 @@ module waveGen(input  logic clk, reset, wgEn,
 					input  logic[15:0] tuneWord,
 					output logic       sign,
 					output logic[7:0]  amplitude);
-	// Caleb Norfleet, cnorfleet@hmc.edu, 11/14/19
 	// generates sinusoid based on tuneWord
 	
 	logic[15:0] phaseAcc;             // phase accumulator
@@ -107,7 +105,6 @@ module pwmGen(input  logic      clk, reset,
 				  input  logic[7:0] waveCounter,
 				  input  logic[7:0] magnitude,
 				  output logic      carrier);
-	// Caleb Norfleet, cnorfleet@hmc.edu, 11/15/19
 	// modulates carrier signal based on sine wave
 	
 	always_ff @(posedge clk) begin
