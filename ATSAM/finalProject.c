@@ -8,14 +8,15 @@
 
 #define SONGMODESWITCH  PIO_PB2
 #define CHIP_SELECT_PIN PIO_PB10 // PB10 -> P126
+#define CHIP_SELECT_PIN2 PIO_PA10
 // SPCK: PA14 -> P113
 // MOSI: PA13 -> P112
 // MISO: PA12 -> P111
 // NPCS0 (not used): PA11 -> P110
 
 #define CH_ID     TC_CH0_ID
-#define CLK_ID    TC_CLK4_ID
-#define CLK_SPEED TC_CLK4_SPEED
+#define CLK_ID    TC_CLK5_ID
+#define CLK_SPEED TC_CLK5_SPEED
 
 // Pitch in Hz, duration in ms
 // Fur Elise
@@ -206,12 +207,15 @@ int main(void) {
   pioInit();
   spiInit(MCK_FREQ/244000, 0, 1);
   // "clock divide" = master clock frequency / desired baud rate
-  // the phase for the SPI clock is 1 and the polarity is 0
-	tcInit();
-	tcChannelInit(CH_ID, CLK_ID, TC_MODE_UP_RC);
+  // the phase for the SPI clock is 0 and the polarity is 0
+	//tcInit();
+	//tcChannelInit(CH_ID, CLK_ID, TC_MODE_UP_RC);
+	tcDelayInit();
+	pioPinMode(CHIP_SELECT_PIN, PIO_OUTPUT);
+	pioPinMode(CHIP_SELECT_PIN2, PIO_OUTPUT);
 
 	// Read desired song mode:
-	int songMode = pioDigitalRead(SONGMODESWITCH);
+	int songMode = 1; //pioDigitalRead(SONGMODESWITCH);
 	const int * notes = songMode ? &(song1[0][0]) : &(song2[0][0]);
 	const int speedMult = songMode ? 1 : 3;
 	const int pitchMult = songMode ? 1 : 2;
@@ -227,9 +231,9 @@ int main(void) {
 void playNote(int pitch, int dur) {
 	// pitch in Hz, dur in ms
 	
-	tcResetChannel(CH_ID);
-	uint32_t noteEnd = dur * (CLK_SPEED / 1e3);
-	tcSetRC_compare(CH_ID, noteEnd);
+	//tcResetChannel(CH_ID);
+	//uint32_t noteEnd = dur * (CLK_SPEED / 1e3);
+	//tcSetRC_compare(CH_ID, noteEnd);
 	
 	// note: tuneWord of 1 corresponds to 2.384 Hz = ((40MHz)/2^8)/2^16
 	uint16_t tuneWord = pitch / 2.38418579;
@@ -242,10 +246,13 @@ void playNote(int pitch, int dur) {
 	// shift in volume in one byte
 	// deassert chipSelect
 	pioDigitalWrite(CHIP_SELECT_PIN, 1);
+	pioDigitalWrite(CHIP_SELECT_PIN2, 1);
 	spiSendReceive(tune_word_byte_1);
 	spiSendReceive(tune_word_byte_2);
 	spiSendReceive(volume_byte);
 	pioDigitalWrite(CHIP_SELECT_PIN, 0);
+	pioDigitalWrite(CHIP_SELECT_PIN2, 0);
 	
-	while(tcCheckRC_compare(CH_ID)) { }
+	tcDelay(dur);
+	//while(tcCheckRC_compare(CH_ID)) { }
 }
