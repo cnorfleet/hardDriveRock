@@ -1,5 +1,6 @@
 module top(input  logic clk, reset,
 			  input  logic chipSelect, sck, sdi,
+			  output logic signOut,
 			  output logic carrierOut);
 	// Erik Meike and Caleb Norfleet
 	// FPGA stuff for uPs final project
@@ -22,6 +23,7 @@ module top(input  logic clk, reset,
 	pwmGen pg(clk, reset, waveCounter, magnitude, carrier);
 	
 	assign carrierOut = carrier; // TODO: remove this debug signal
+	assign signOut = sign;
 	// TODO: need to generate FET driver signals based on sign and carrier
 	
 	// control signals
