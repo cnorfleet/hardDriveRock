@@ -11,37 +11,42 @@ module top(input  logic clk, reset,
 	logic [7:0]  volume;     // unsigned volume of output
 	logic [7:0]  currentVol; // volume only updated after every 2^8 clock cycles
 	logic [7:0]  magnitude;  // amplitude of wave after multiplying with volume
-	logic        carrier;    // output signal.  PWM at 40MHz to achieve amplitude at 156.25 kHz
+	logic        waveOut;    // output signal.  PWM at 40MHz to achieve amplitude at 156.25 kHz
+	
+	logic[7:0] waveCounter;
+	logic wgEn;
 	
 	// main modules
-	spi s(chipSelect, sck, sdi, tuneWord, volume);
+	spi s(reset, chipSelect, sck, sdi, tuneWord, volume);
 	waveGen wg(clk, reset, wgEn, tuneWord, sign, amplitude);
 	logic [15:0] mult;
 	assign mult = ({8'b0, amplitude} * {8'b0, currentVol});
 	assign magnitude = (mult[7] & ~&mult[15:8]) ? (mult[15:8] + 8'b1) : (mult[15:8]);
 	// ^ note: rounding with saturation
-	pwmGen pg(clk, reset, waveCounter, magnitude, carrier);
+	pwmGen pg(clk, reset, waveCounter, magnitude, waveOut);
 	
-	assign carrierOut = carrier; // TODO: remove this debug signal
+	
+	assign carrierOut = waveOut; // TODO: remove this debug signal
 	assign signOut = sign;
+	
+	
+	
 	// TODO: need to generate FET driver signals based on sign and carrier
 	
 	// control signals
-	logic[7:0] waveCounter;
 	always_ff @(posedge clk) begin
-		if(reset)  waveCounter <= 8'b0;
+		if(reset)  waveCounter <= 8'b10000000;
 		else begin
 			waveCounter <= waveCounter + 8'b1;
 			if(wgEn) currentVol <= volume;
 		end
 	end
-	
-	logic wgEn; // wave gen runs at 156.25 kHz = 40MHz / 256 (aka 2^8)
-	assign wgEn = (waveCounter == 8'b0);
+	assign wgEn = (waveCounter == 8'b0); // wave gen runs at 156.25 kHz = 40MHz / 256 (aka 2^8)
 	
 endmodule
 
-module spi(input  logic chipSelect,
+module spi(input  logic reset,
+			  input  logic chipSelect,
 			  input  logic sck, 
 			  input  logic sdi,
 			  output logic [15:0] tuneWord,
@@ -56,17 +61,21 @@ module spi(input  logic chipSelect,
 	// shift in frequency in two bytes (MSB first)
 	// shift in volume in one byte
 	// deassert chipSelect or just repeat
-	always_ff @(posedge sck) begin
-		if(chipSelect) begin
-			readData <= {readData[22:0], sdi};
-			dataCount = dataCount + 5'b1;
-			if(dataCount == 5'd24) begin
-				tuneWord   <= readData[23:8];
-				volume <= readData[7:0];
-				dataCount = 5'b0;
+	
+	always_ff @(posedge sck or posedge reset) begin
+		if(reset) dataCount <= 5'b0;
+		else begin
+			if(chipSelect) begin
+				readData <= {readData[22:0], sdi};
+				dataCount = dataCount + 5'b1;
+				if(dataCount == 5'd24) begin
+					tuneWord   <= {readData[22:0], sdi}[23:8];
+					volume <= {readData[22:0], sdi}[7:0];
+					dataCount = 5'b0;
+				end
 			end
+			else dataCount <= 5'b0;
 		end
-		else dataCount <= 5'b0;
 	end
 endmodule
 
@@ -80,9 +89,9 @@ module waveGen(input  logic clk, reset, wgEn,
 	logic[7:0]  LUTsine[(2**10-1):0]; // look up table
 	
 	logic nextSign;
-	logic[11:0] nextPhase;
+	logic[9:0] nextPhase;
 	assign nextSign = phaseAcc[15]; // neg in second half
-	assign nextPhase = (phaseAcc[14]) ? (12'h000 - phaseAcc[13:4]) : (phaseAcc[13:4]);
+	assign nextPhase = (phaseAcc[14]) ? (10'b0000000000 - phaseAcc[13:4]) : (phaseAcc[13:4]);
 	// ^ note that phase is adjusted since we're using a 1/4 phase LUT
 	
 	always_ff @(posedge clk) begin
@@ -91,7 +100,7 @@ module waveGen(input  logic clk, reset, wgEn,
 			amplitude <= 8'b0;
 		end
 		else if(wgEn) begin
-			phaseAcc  <= phaseAcc + tuneWord;
+			phaseAcc  = phaseAcc + tuneWord;
 			amplitude <= LUTsine[nextPhase];
 			sign      <= nextSign;
 		end
@@ -106,11 +115,11 @@ endmodule
 module pwmGen(input  logic      clk, reset,
 				  input  logic[7:0] waveCounter,
 				  input  logic[7:0] magnitude,
-				  output logic      carrier);
+				  output logic      waveOut);
 	// modulates carrier signal based on sine wave
 	
 	always_ff @(posedge clk) begin
-		carrier <= (~reset & (waveCounter < magnitude));
+		waveOut <= (~reset & (waveCounter < magnitude));
 		// PWM carrier by magnitude
 	end
 endmodule
