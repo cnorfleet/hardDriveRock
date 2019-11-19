@@ -129,6 +129,7 @@ const int song1[][2] = {
 {523,	125},
 {494,	125},
 {440,	500},
+{  0,	  1}, // stop
 {  0,	  0}};
 
 // Pitch in Hz, duration in ms
@@ -194,6 +195,7 @@ const int song2[][2] = {
 { 466, 250 }, // Bflat5
 { 784, 125 }, // G5
 { 659 ,625 }, // E5
+{  0,	  1}, // stop
 {    0,  0 }};
 
 // near middle C:      A    B    C    D    E    F    G
@@ -215,7 +217,7 @@ int main(void) {
 	pioPinMode(CHIP_SELECT_PIN2, PIO_OUTPUT);
 
 	// Read desired song mode:
-	int songMode = 1; //pioDigitalRead(SONGMODESWITCH);
+	int songMode = pioDigitalRead(SONGMODESWITCH);
 	const int * notes = songMode ? &(song1[0][0]) : &(song2[0][0]);
 	const int speedMult = songMode ? 1 : 3;
 	const int pitchMult = songMode ? 1 : 2;

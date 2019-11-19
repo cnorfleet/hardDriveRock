@@ -12,47 +12,15 @@
 					"strict" : false
 				},
 				{
-					"name" : "ledOut[0]",
-					"strict" : false
-				},
-				{
-					"name" : "ledOut[1]",
-					"strict" : false
-				},
-				{
-					"name" : "ledOut[2]",
-					"strict" : false
-				},
-				{
-					"name" : "ledOut[3]",
-					"strict" : false
-				},
-				{
-					"name" : "ledOut[4]",
-					"strict" : false
-				},
-				{
-					"name" : "ledOut[5]",
-					"strict" : false
-				},
-				{
-					"name" : "ledOut[6]",
-					"strict" : false
-				},
-				{
-					"name" : "ledOut[7]",
-					"strict" : false
-				},
-				{
-					"name" : "chipSelect",
-					"strict" : false
-				},
-				{
 					"name" : "clk",
 					"strict" : false
 				},
 				{
 					"name" : "reset",
+					"strict" : false
+				},
+				{
+					"name" : "chipSelect",
 					"strict" : false
 				},
 				{

@@ -1,5 +1,5 @@
 Analysis & Synthesis report for top
-Mon Nov 18 19:55:47 2019
+Mon Nov 18 20:23:36 2019
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -47,7 +47,7 @@ refer to the applicable agreement for further details.
 +----------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                     ;
 +------------------------------------+---------------------------------------------+
-; Analysis & Synthesis Status        ; Successful - Mon Nov 18 19:55:47 2019       ;
+; Analysis & Synthesis Status        ; Successful - Mon Nov 18 20:23:36 2019       ;
 ; Quartus Prime Version              ; 18.1.0 Build 625 09/12/2018 SJ Lite Edition ;
 ; Revision Name                      ; top                                         ;
 ; Top-level Entity Name              ; top                                         ;
@@ -56,7 +56,7 @@ refer to the applicable agreement for further details.
 ;     Total combinational functions  ; 373                                         ;
 ;     Dedicated logic registers      ; 96                                          ;
 ; Total registers                    ; 96                                          ;
-; Total pins                         ; 15                                          ;
+; Total pins                         ; 7                                           ;
 ; Total virtual pins                 ; 0                                           ;
 ; Total memory bits                  ; 0                                           ;
 ; Embedded Multiplier 9-bit elements ; 1                                           ;
@@ -193,8 +193,8 @@ refer to the applicable agreement for further details.
 ;                                             ;                   ;
 ; Total combinational functions               ; 373               ;
 ; Logic element usage by number of LUT inputs ;                   ;
-;     -- 4 input functions                    ; 258               ;
-;     -- 3 input functions                    ; 74                ;
+;     -- 4 input functions                    ; 259               ;
+;     -- 3 input functions                    ; 73                ;
 ;     -- <=2 input functions                  ; 41                ;
 ;                                             ;                   ;
 ; Logic elements by mode                      ;                   ;
@@ -205,14 +205,14 @@ refer to the applicable agreement for further details.
 ;     -- Dedicated logic registers            ; 96                ;
 ;     -- I/O registers                        ; 0                 ;
 ;                                             ;                   ;
-; I/O pins                                    ; 15                ;
+; I/O pins                                    ; 7                 ;
 ;                                             ;                   ;
 ; Embedded Multiplier 9-bit elements          ; 1                 ;
 ;                                             ;                   ;
 ; Maximum fan-out node                        ; waveGen:wg|Add0~3 ;
-; Maximum fan-out                             ; 110               ;
-; Total fan-out                               ; 1678              ;
-; Average fan-out                             ; 3.35              ;
+; Maximum fan-out                             ; 111               ;
+; Total fan-out                               ; 1663              ;
+; Average fan-out                             ; 3.43              ;
 +---------------------------------------------+-------------------+
 
 
@@ -221,7 +221,7 @@ refer to the applicable agreement for further details.
 +---------------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+---------------------------------------------+-------------+--------------+
 ; Compilation Hierarchy Node      ; Combinational ALUTs ; Dedicated Logic Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; Pins ; Virtual Pins ; Full Hierarchy Name                         ; Entity Name ; Library Name ;
 +---------------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+---------------------------------------------+-------------+--------------+
-; |top                            ; 373 (22)            ; 96 (16)                   ; 0           ; 1            ; 1       ; 0         ; 15   ; 0            ; |top                                        ; top         ; work         ;
+; |top                            ; 373 (22)            ; 96 (16)                   ; 0           ; 1            ; 1       ; 0         ; 7    ; 0            ; |top                                        ; top         ; work         ;
 ;    |lpm_mult:Mult0|             ; 0 (0)               ; 0 (0)                     ; 0           ; 1            ; 1       ; 0         ; 0    ; 0            ; |top|lpm_mult:Mult0                         ; lpm_mult    ; work         ;
 ;       |mult_aat:auto_generated| ; 0 (0)               ; 0 (0)                     ; 0           ; 1            ; 1       ; 0         ; 0    ; 0            ; |top|lpm_mult:Mult0|mult_aat:auto_generated ; mult_aat    ; work         ;
 ;    |pwmGen:pg|                  ; 8 (8)               ; 1 (1)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |top|pwmGen:pg                              ; pwmGen      ; work         ;
@@ -334,7 +334,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +-----------------------+-----------------------------+
 ; Type                  ; Count                       ;
 +-----------------------+-----------------------------+
-; boundary_port         ; 15                          ;
+; boundary_port         ; 7                           ;
 ; cycloneiii_ff         ; 96                          ;
 ;     CLR               ; 5                           ;
 ;     ENA               ; 66                          ;
@@ -349,8 +349,8 @@ Note: In order to hide this table in the UI and the text report file, please set
 ;         0 data inputs ; 1                           ;
 ;         1 data inputs ; 3                           ;
 ;         2 data inputs ; 24                          ;
-;         3 data inputs ; 42                          ;
-;         4 data inputs ; 258                         ;
+;         3 data inputs ; 41                          ;
+;         4 data inputs ; 259                         ;
 ; cycloneiii_mac_mult   ; 1                           ;
 ; cycloneiii_mac_out    ; 1                           ;
 ;                       ;                             ;
@@ -364,7 +364,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+--------------+
 ; Partition Name ; Elapsed Time ;
 +----------------+--------------+
-; Top            ; 00:00:04     ;
+; Top            ; 00:00:06     ;
 +----------------+--------------+
 
 
@@ -374,30 +374,30 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus Prime Analysis & Synthesis
     Info: Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
-    Info: Processing started: Mon Nov 18 19:55:25 2019
+    Info: Processing started: Mon Nov 18 20:23:11 2019
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off finalProject -c top
 Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
 Info (20030): Parallel compilation is enabled and will use 2 of the 2 processors detected
 Info (12021): Found 4 design units, including 4 entities, in source file finalproject.sv
     Info (12023): Found entity 1: top File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 1
-    Info (12023): Found entity 2: spi File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 47
-    Info (12023): Found entity 3: waveGen File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 89
-    Info (12023): Found entity 4: pwmGen File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 122
+    Info (12023): Found entity 2: spi File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 45
+    Info (12023): Found entity 3: waveGen File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 85
+    Info (12023): Found entity 4: pwmGen File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 118
 Info (12021): Found 1 design units, including 1 entities, in source file testbench.sv
     Info (12023): Found entity 1: testbench File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/testbench.sv Line: 1
 Info (12127): Elaborating entity "top" for the top level hierarchy
-Info (12128): Elaborating entity "spi" for hierarchy "spi:s" File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 22
-Info (12128): Elaborating entity "waveGen" for hierarchy "waveGen:wg" File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 23
-Warning (10030): Net "LUTsine.data_a" at finalProject.sv(96) has no driver or initial value, using a default initial value '0' File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 96
-Warning (10030): Net "LUTsine.waddr_a" at finalProject.sv(96) has no driver or initial value, using a default initial value '0' File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 96
-Warning (10030): Net "LUTsine.we_a" at finalProject.sv(96) has no driver or initial value, using a default initial value '0' File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 96
-Info (12128): Elaborating entity "pwmGen" for hierarchy "pwmGen:pg" File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 28
+Info (12128): Elaborating entity "spi" for hierarchy "spi:s" File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 20
+Info (12128): Elaborating entity "waveGen" for hierarchy "waveGen:wg" File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 21
+Warning (10030): Net "LUTsine.data_a" at finalProject.sv(92) has no driver or initial value, using a default initial value '0' File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 92
+Warning (10030): Net "LUTsine.waddr_a" at finalProject.sv(92) has no driver or initial value, using a default initial value '0' File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 92
+Warning (10030): Net "LUTsine.we_a" at finalProject.sv(92) has no driver or initial value, using a default initial value '0' File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 92
+Info (12128): Elaborating entity "pwmGen" for hierarchy "pwmGen:pg" File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 26
 Info (276014): Found 1 instances of uninferred RAM logic
-    Info (276007): RAM logic "waveGen:wg|LUTsine" is uninferred due to asynchronous read logic File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 96
+    Info (276007): RAM logic "waveGen:wg|LUTsine" is uninferred due to asynchronous read logic File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 92
 Info (278001): Inferred 1 megafunctions from design logic
-    Info (278003): Inferred multiplier megafunction ("lpm_mult") from the following logic: "Mult0" File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 25
-Info (12130): Elaborated megafunction instantiation "lpm_mult:Mult0" File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 25
-Info (12133): Instantiated megafunction "lpm_mult:Mult0" with the following parameter: File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 25
+    Info (278003): Inferred multiplier megafunction ("lpm_mult") from the following logic: "Mult0" File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 23
+Info (12130): Elaborated megafunction instantiation "lpm_mult:Mult0" File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 23
+Info (12133): Instantiated megafunction "lpm_mult:Mult0" with the following parameter: File: C:/Users/cnorf/Documents/GitHub/uPs/Verilog/finalProject.sv Line: 23
     Info (12134): Parameter "LPM_WIDTHA" = "8"
     Info (12134): Parameter "LPM_WIDTHB" = "8"
     Info (12134): Parameter "LPM_WIDTHP" = "16"
@@ -413,16 +413,16 @@ Info (286030): Timing-Driven Synthesis is running
 Info (144001): Generated suppressed messages file C:/Users/cnorf/Documents/GitHub/uPs/Verilog/output_files/top.map.smsg
 Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
     Info (16011): Adding 0 node(s), including 0 DDIO, 0 PLL, 0 transceiver and 0 LCELL
-Info (21057): Implemented 446 device resources after synthesis - the final resource count might be different
+Info (21057): Implemented 438 device resources after synthesis - the final resource count might be different
     Info (21058): Implemented 5 input pins
-    Info (21059): Implemented 10 output pins
+    Info (21059): Implemented 2 output pins
     Info (21061): Implemented 430 logic cells
     Info (21062): Implemented 1 DSP elements
 Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 4 warnings
-    Info: Peak virtual memory: 4752 megabytes
-    Info: Processing ended: Mon Nov 18 19:55:47 2019
-    Info: Elapsed time: 00:00:22
-    Info: Total CPU time (on all processors): 00:00:44
+    Info: Peak virtual memory: 4758 megabytes
+    Info: Processing ended: Mon Nov 18 20:23:36 2019
+    Info: Elapsed time: 00:00:25
+    Info: Total CPU time (on all processors): 00:00:49
 
 
 +------------------------------------------+

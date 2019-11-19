@@ -1,8 +1,7 @@
 module top(input  logic clk, reset,
 			  input  logic chipSelect, sck, sdi,
 			  output logic signOut,
-			  output logic carrierOut,
-			  output logic[7:0] ledOut);
+			  output logic carrierOut);
 	// Erik Meike and Caleb Norfleet
 	// FPGA stuff for uPs final project
 	
@@ -18,8 +17,7 @@ module top(input  logic clk, reset,
 	logic wgEn;
 	
 	// main modules
-	assign ledOut [7:6] = {waveCounter [7], chipSelect};
-	spi s(clk, reset, chipSelect, sck, sdi, tuneWord, volume, ledOut[5:0]);
+	spi s(clk, reset, chipSelect, sck, sdi, tuneWord, volume);
 	waveGen wg(clk, reset, wgEn, tuneWord, sign, amplitude);
 	logic [15:0] mult;
 	assign mult = ({8'b0, amplitude} * {8'b0, currentVol});
@@ -49,15 +47,13 @@ module spi(input  logic clk, reset,
 			  input  logic sck, 
 			  input  logic sdi,
 			  output logic [15:0] tuneWord,
-			  output logic [7:0]  volume,
-			  output logic [5:0]  temp);
+			  output logic [7:0]  volume);
 	// Accepts frequency and volume input over SPI from ATSAM
 	// Internal freq and volume only updated after full packet recieved
 	
 	logic[4:0]  dataCount    = 5'b0;
 	logic       icanHasFlags = 1'b0; // indicates whether data in readData is good
 	logic[23:0] readData;
-	assign temp = {icanHasFlags, dataCount};
 	
 	// assert chipSelect
 	// shift in frequency in two bytes (MSB first)

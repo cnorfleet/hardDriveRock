@@ -3606,11 +3606,11 @@
       <ActiveTab>0</ActiveTab>
       <Doc>
         <Name>.\finalProject.c</Name>
-        <ColumnNumber>43</ColumnNumber>
-        <TopLine>147</TopLine>
-        <CurrentLine>215</CurrentLine>
+        <ColumnNumber>0</ColumnNumber>
+        <TopLine>67</TopLine>
+        <CurrentLine>261</CurrentLine>
         <Folding>1</Folding>
-        <ContractedFolders>135</ContractedFolders>
+        <ContractedFolders>22,136</ContractedFolders>
         <PaneID>0</PaneID>
       </Doc>
       <Doc>
