@@ -1,6 +1,6 @@
 # gitignore for Quartus and stuff
 
-.DS_Store
+*.DS_Store
 .git
 
 modelsim
