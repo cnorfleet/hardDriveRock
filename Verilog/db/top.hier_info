@@ -4,16 +4,16 @@ reset => reset.IN3
 chipSelect => chipSelect.IN1
 sck => sck.IN1
 sdi => sdi.IN1
-signOut <= waveGen:wg.port4
-carrierOut <= pwmGen:pg.port4
-ledOut[0] <= spi:s.port7
-ledOut[1] <= spi:s.port7
-ledOut[2] <= spi:s.port7
-ledOut[3] <= spi:s.port7
-ledOut[4] <= spi:s.port7
-ledOut[5] <= spi:s.port7
-ledOut[6] <= wgEn.DB_MAX_OUTPUT_PORT_TYPE
-ledOut[7] <= waveCounter[7].DB_MAX_OUTPUT_PORT_TYPE
+signOut << waveGen:wg.port4
+carrierOut << pwmGen:pg.port4
+ledOut[0] << spi:s.port7
+ledOut[1] << spi:s.port7
+ledOut[2] << spi:s.port7
+ledOut[3] << spi:s.port7
+ledOut[4] << spi:s.port7
+ledOut[5] << spi:s.port7
+ledOut[6] << chipSelect.DB_MAX_OUTPUT_PORT_TYPE
+ledOut[7] << waveCounter[7].DB_MAX_OUTPUT_PORT_TYPE
 
 
 |top|spi:s

@@ -18,7 +18,7 @@ module top(input  logic clk, reset,
 	logic wgEn;
 	
 	// main modules
-	assign ledOut [7:6] = {waveCounter [7], wgEn};
+	assign ledOut [7:6] = {waveCounter [7], chipSelect};
 	spi s(clk, reset, chipSelect, sck, sdi, tuneWord, volume, ledOut[5:0]);
 	waveGen wg(clk, reset, wgEn, tuneWord, sign, amplitude);
 	logic [15:0] mult;

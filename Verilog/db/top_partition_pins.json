@@ -44,6 +44,10 @@
 					"strict" : false
 				},
 				{
+					"name" : "chipSelect",
+					"strict" : false
+				},
+				{
 					"name" : "clk",
 					"strict" : false
 				},
@@ -53,10 +57,6 @@
 				},
 				{
 					"name" : "sck",
-					"strict" : false
-				},
-				{
-					"name" : "chipSelect",
 					"strict" : false
 				},
 				{
