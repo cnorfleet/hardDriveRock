@@ -1,7 +1,8 @@
 module top(input  logic clk, reset,
 			  input  logic chipSelect, sck, sdi,
 			  output logic signOut,
-			  output logic carrierOut);
+			  output logic carrierOut,
+			  output logic[7:0] ledOut);
 	// Erik Meike and Caleb Norfleet
 	// FPGA stuff for uPs final project
 	
@@ -17,7 +18,8 @@ module top(input  logic clk, reset,
 	logic wgEn;
 	
 	// main modules
-	spi s(reset, chipSelect, sck, sdi, tuneWord, volume);
+	assign ledOut [7:6] = {waveCounter [7], wgEn};
+	spi s(clk, reset, chipSelect, sck, sdi, tuneWord, volume, ledOut[5:0]);
 	waveGen wg(clk, reset, wgEn, tuneWord, sign, amplitude);
 	logic [15:0] mult;
 	assign mult = ({8'b0, amplitude} * {8'b0, currentVol});
@@ -28,9 +30,6 @@ module top(input  logic clk, reset,
 	
 	assign carrierOut = waveOut; // TODO: remove this debug signal
 	assign signOut = sign;
-	
-	
-	
 	// TODO: need to generate FET driver signals based on sign and carrier
 	
 	// control signals
@@ -45,36 +44,44 @@ module top(input  logic clk, reset,
 	
 endmodule
 
-module spi(input  logic reset,
+module spi(input  logic clk, reset,
 			  input  logic chipSelect,
 			  input  logic sck, 
 			  input  logic sdi,
 			  output logic [15:0] tuneWord,
-			  output logic [7:0]  volume);
+			  output logic [7:0]  volume,
+			  output logic [5:0]  temp);
 	// Accepts frequency and volume input over SPI from ATSAM
 	// Internal freq and volume only updated after full packet recieved
 	
-	logic[4:0]  dataCount;
+	logic[4:0]  dataCount    = 5'b0;
+	logic       icanHasFlags = 1'b0; // indicates whether data in readData is good
 	logic[23:0] readData;
+	assign temp = {icanHasFlags, dataCount};
 	
 	// assert chipSelect
 	// shift in frequency in two bytes (MSB first)
 	// shift in volume in one byte
 	// deassert chipSelect or just repeat
 	
-	always_ff @(posedge sck or posedge reset) begin
-		if(reset) dataCount <= 5'b0;
+	always_ff @(posedge sck or negedge chipSelect) begin
+		if(~chipSelect) begin          
+			dataCount    <= 5'b0;
+		end
 		else begin
-			if(chipSelect) begin
-				readData <= {readData[22:0], sdi};
-				dataCount = dataCount + 5'b1;
-				if(dataCount == 5'd24) begin
-					tuneWord   <= {readData[22:0], sdi}[23:8];
-					volume <= {readData[22:0], sdi}[7:0];
-					dataCount = 5'b0;
-				end
+			readData <= {readData[22:0], sdi};
+			dataCount <= dataCount + 5'b1;
+			if((dataCount + 5'b1) == 5'd24) icanHasFlags <= 1'b1;
+			else                            icanHasFlags <= 1'b0;
+		end
+	end
+	
+	always_ff @(posedge clk) begin
+		if(~chipSelect) begin
+			if(icanHasFlags) begin
+				tuneWord <= readData[23:8];
+				volume   <= readData[7:0];
 			end
-			else dataCount <= 5'b0;
 		end
 	end
 endmodule

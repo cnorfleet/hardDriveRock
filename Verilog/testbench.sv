@@ -9,7 +9,7 @@ module testbench();
     // test case
     initial begin
         packet       <= 24'h0114ff;
-		  reset <= 1'b0; #1; reset <= 1'b1; #22; reset <= 1'b0;
+		  reset <= 1'b1; #22; reset <= 1'b0;
     end
     
     // generate clock and load signals
@@ -20,8 +20,8 @@ module testbench();
         end
         
     initial begin
-      i = 0;
-      cs <= 0'b0; #23; cs <= 1'b1;
+      i = 0; sck = 0;
+      cs<=1'b1; #1; cs <= 1'b0; #23; cs <= 1'b1;
     end 
     
     // shift in test vectors, wait until done, and shift out result
