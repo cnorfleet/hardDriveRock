@@ -43,7 +43,6 @@ Verilog/timing
 PLLJ_PLLSPE_INFO.txt # The generated PLL specification file
 
 # ignore modelsim generated files
-*.qpf
 *.qsf
 *.mpf
 *.wlf
@@ -63,4 +62,5 @@ ATSAM/Objects
 ATSAM/Listings
 ATSAM/RTE
 JLinkSettings.ini
+JLinkLog.txt
 *.scvd
