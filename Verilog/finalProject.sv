@@ -18,6 +18,11 @@ module top(input  logic clk, reset,
 	
 	waveGen wg(clk, reset, wgEn, tuneWord, sign, amplitude);
 	
+	always_ff @(posedge clk) begin
+		if (reset)    currentVol <= 8'b0;
+		else if(wgEn) currentVol <= volume;
+	end
+	
 	logic [15:0] mult;
 	assign mult = ({8'b0, amplitude} * {8'b0, currentVol});
 	assign magnitude = (mult[7] & ~&mult[15:8]) ? (mult[15:8] + 8'b1) : (mult[15:8]);
@@ -75,8 +80,8 @@ module spi(input  logic clk, reset,
 			volume          <=  8'b0;
 			watchdogCounter <= 26'b0;
 		end else if(icanHasFlagsCopy) begin
-			tuneWord        <= readData[23:8];
-			volume          <= readData[7:0];
+			tuneWord        <= readDataCopy[23:8];
+			volume          <= readDataCopy[7:0];
 			watchdogCounter <= 26'b0;
 		end else begin
 			watchdogCounter <= watchdogCounter + 26'b1;
@@ -124,16 +129,14 @@ module pwmGen(input  logic      clk, reset,
 				  output logic      wgEn,
 				  output logic      waveOut);
 	// modulates carrier signal based on sine wave
-	
+
+	// wave gen runs at 156.25 kHz = 40MHz / 256 (aka 2^8)
 	logic[7:0] waveCounter;
 	always_ff @(posedge clk) begin
 		if(reset)  waveCounter <= 8'b10000000;
-		else begin
-			waveCounter <= waveCounter + 8'b1;
-			if(wgEn) currentVol <= volume;
-		end
+		else       waveCounter <= waveCounter + 8'b1;
 	end
-	assign wgEn = (waveCounter == 8'b0); // wave gen runs at 156.25 kHz = 40MHz / 256 (aka 2^8)
+	assign wgEn = (waveCounter == 8'b0);
 	
 	always_ff @(posedge clk) begin
 		waveOut <= (~reset & (waveCounter < magnitude));
