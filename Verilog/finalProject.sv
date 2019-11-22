@@ -14,15 +14,16 @@ module top(input  logic clk, reset,
 	logic        waveOut;    // output signal.  PWM at 40MHz to achieve amplitude at 156.25 kHz
 	logic        wgEn;       // interrrupt to request next amplitude from waveGen
 	
-	// main modules
 	spi s(clk, reset, chipSelect, sck, sdi, tuneWord, volume);
+	
 	waveGen wg(clk, reset, wgEn, tuneWord, sign, amplitude);
+	
 	logic [15:0] mult;
 	assign mult = ({8'b0, amplitude} * {8'b0, currentVol});
 	assign magnitude = (mult[7] & ~&mult[15:8]) ? (mult[15:8] + 8'b1) : (mult[15:8]);
 	// ^ note: rounding with saturation
-	pwmGen pg(clk, reset, magnitude, wgEn, waveOut);
 	
+	pwmGen pg(clk, reset, magnitude, wgEn, waveOut);
 	
 	assign carrierOut = waveOut; // TODO: remove this debug signal
 	assign signOut = sign;
@@ -37,10 +38,14 @@ module spi(input  logic clk, reset,
 			  output logic [7:0]  volume);
 	// Accepts frequency and volume input over SPI from ATSAM
 	// Internal freq and volume only updated after full packet recieved
+	// Note: contains ~3.4 second watchdog timer (turns off music)
 	
-	logic[4:0]  dataCount    = 5'b0;
-	logic       icanHasFlags = 1'b0; // indicates whether data in readData is good
-	logic[23:0] readData;
+	logic[4:0]  dataCount        = 5'b0; // amt of data in SPI packet so far
+	logic       icanHasFlags     = 1'b0; // indicates whether readData is good
+	logic       icanHasFlagsCopy = 1'b0; // copied into clk domain
+	logic[23:0] readData;                // data recieved over SPI
+	logic[23:0] readDataCopy;            // copied into clk domain
+	logic[25:0] watchdogCounter;         // 2^27/40MHz = ~3.36 seconds
 	
 	// assert chipSelect
 	// shift in frequency in two bytes (MSB first)
@@ -60,11 +65,23 @@ module spi(input  logic clk, reset,
 	end
 	
 	always_ff @(posedge clk) begin
-		if(~chipSelect) begin
-			if(icanHasFlags) begin
-				tuneWord <= readData[23:8];
-				volume   <= readData[7:0];
-			end
+		if(~chipSelect) begin // copy over from sck domain if cs is low
+			readDataCopy     <= readData;
+			icanHasFlagsCopy <= icanHasFlags;
+		end
+		
+		if(reset) begin
+			tuneWord        <= 16'b0;
+			volume          <=  8'b0;
+			watchdogCounter <= 26'b0;
+		end else if(icanHasFlagsCopy) begin
+			tuneWord        <= readData[23:8];
+			volume          <= readData[7:0];
+			watchdogCounter <= 26'b0;
+		end else begin
+			watchdogCounter <= watchdogCounter + 26'b1;
+			if(&watchdogCounter) // same as watchdogCounter == 26'h4FFFFFF
+				tuneWord <= 16'b0; // stop playing
 		end
 	end
 endmodule
