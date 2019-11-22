@@ -12,9 +12,7 @@ module top(input  logic clk, reset,
 	logic [7:0]  currentVol; // volume only updated after every 2^8 clock cycles
 	logic [7:0]  magnitude;  // amplitude of wave after multiplying with volume
 	logic        waveOut;    // output signal.  PWM at 40MHz to achieve amplitude at 156.25 kHz
-	
-	logic[7:0] waveCounter;
-	logic wgEn;
+	logic        wgEn;       // interrrupt to request next amplitude from waveGen
 	
 	// main modules
 	spi s(clk, reset, chipSelect, sck, sdi, tuneWord, volume);
@@ -23,23 +21,12 @@ module top(input  logic clk, reset,
 	assign mult = ({8'b0, amplitude} * {8'b0, currentVol});
 	assign magnitude = (mult[7] & ~&mult[15:8]) ? (mult[15:8] + 8'b1) : (mult[15:8]);
 	// ^ note: rounding with saturation
-	pwmGen pg(clk, reset, waveCounter, magnitude, waveOut);
+	pwmGen pg(clk, reset, magnitude, wgEn, waveOut);
 	
 	
 	assign carrierOut = waveOut; // TODO: remove this debug signal
 	assign signOut = sign;
 	// TODO: need to generate FET driver signals based on sign and carrier
-	
-	// control signals
-	always_ff @(posedge clk) begin
-		if(reset)  waveCounter <= 8'b10000000;
-		else begin
-			waveCounter <= waveCounter + 8'b1;
-			if(wgEn) currentVol <= volume;
-		end
-	end
-	assign wgEn = (waveCounter == 8'b0); // wave gen runs at 156.25 kHz = 40MHz / 256 (aka 2^8)
-	
 endmodule
 
 module spi(input  logic clk, reset,
@@ -116,10 +103,20 @@ module waveGen(input  logic clk, reset, wgEn,
 endmodule
 
 module pwmGen(input  logic      clk, reset,
-				  input  logic[7:0] waveCounter,
 				  input  logic[7:0] magnitude,
+				  output logic      wgEn,
 				  output logic      waveOut);
 	// modulates carrier signal based on sine wave
+	
+	logic[7:0] waveCounter;
+	always_ff @(posedge clk) begin
+		if(reset)  waveCounter <= 8'b10000000;
+		else begin
+			waveCounter <= waveCounter + 8'b1;
+			if(wgEn) currentVol <= volume;
+		end
+	end
+	assign wgEn = (waveCounter == 8'b0); // wave gen runs at 156.25 kHz = 40MHz / 256 (aka 2^8)
 	
 	always_ff @(posedge clk) begin
 		waveOut <= (~reset & (waveCounter < magnitude));
