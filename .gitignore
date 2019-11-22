@@ -57,3 +57,10 @@ output_files
 # ignore executables
 *.exe
 *.o
+
+# ignore keil generated stuff
+ATSAM/Objects
+ATSAM/Listings
+ATSAM/RTE
+JLinkSettings.ini
+*.scvd
