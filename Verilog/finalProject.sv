@@ -96,25 +96,36 @@ module waveGen(input  logic clk, reset, wgEn,
 					output logic       sign,
 					output logic[7:0]  amplitude);
 	// generates sinusoid based on tuneWord
+	// only changes frequency at end of wave (every other zero crossing)
 	
 	logic[15:0] phaseAcc;             // phase accumulator
 	logic[7:0]  LUTsine[(2**10-1):0]; // look up table
+	logic[15:0] currentTuneWord;
 	
 	logic nextSign;
 	logic[9:0] nextPhase;
 	assign nextSign = phaseAcc[15]; // neg in second half
-	assign nextPhase = (phaseAcc[14]) ? (10'b0000000000 - phaseAcc[13:4]) : (phaseAcc[13:4]);
+	assign nextPhase = (phaseAcc[14]) ? (10'b0 - phaseAcc[13:4]) : (phaseAcc[13:4]);
 	// ^ note that phase is adjusted since we're using a 1/4 phase LUT
 	
 	always_ff @(posedge clk) begin
 		if(reset) begin
-			phaseAcc  <= 16'b0;
-			amplitude <= 8'b0;
+			phaseAcc        <= 16'b0;
+			currentTuneWord <= 16'b0;
+			amplitude       <= 8'b0;
+			sign            <= 1'b0;
 		end
 		else if(wgEn) begin
-			phaseAcc  = phaseAcc + tuneWord;
-			amplitude <= LUTsine[nextPhase];
-			sign      <= nextSign;
+			if((tuneWord != currentTuneWord) & ((~sign & nextSign) | (currentTuneWord == 16'b0))) begin
+				currentTuneWord <= tuneWord;
+				phaseAcc        <= 16'b0;
+				amplitude       <= 8'b0;
+				sign            <= 1'b0;
+			end else begin
+				phaseAcc  <= phaseAcc + currentTuneWord;
+				amplitude <= LUTsine[nextPhase];
+				sign      <= nextSign;
+			end
 		end
 	end
 	
