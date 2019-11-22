@@ -1,7 +1,6 @@
 module top(input  logic clk, reset,
 			  input  logic chipSelect, sck, sdi,
-			  output logic signOut,
-			  output logic carrierOut);
+			  output logic A, B, C, D);
 	// Erik Meike and Caleb Norfleet
 	// FPGA stuff for uPs final project
 	
@@ -30,9 +29,8 @@ module top(input  logic clk, reset,
 	
 	pwmGen pg(clk, reset, magnitude, wgEn, waveOut);
 	
-	assign carrierOut = waveOut; // TODO: remove this debug signal
-	assign signOut = sign;
-	// TODO: need to generate FET driver signals based on sign and carrier
+	outputGen og(clk, reset, waveOut, sign, A, B, C, D);
+	
 endmodule
 
 module spi(input  logic clk, reset,
@@ -153,4 +151,18 @@ module pwmGen(input  logic      clk, reset,
 		waveOut <= (~reset & (waveCounter < magnitude));
 		// PWM carrier by magnitude
 	end
+endmodule
+
+module outputGen(input  logic clk, reset,
+					  input  logic waveOut, sign,
+					  output logic A, B, C, D);
+	// TODO: need to generate FET driver signals based on sign and carrier
+	// 
+	
+	logic nextA, nextB, nextC, nextD;
+	
+	always_ff @(posedge clk) begin
+		
+	end
+	
 endmodule

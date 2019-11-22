@@ -5,6 +5,12 @@
 
 #include <stdio.h>
 #include "SAM4S4B_libraries/SAM4S4B.h"
+#include "ArduboyTonesPitches.h"
+
+#define TONES_END 0x0000
+#include "Songs/su.c"
+
+#define PLAYGENERATEDSONG 0
 
 #define SONGMODESWITCH  PIO_PB2
 #define CHIP_SELECT_PIN PIO_PB10 // PB10 -> P126
@@ -218,9 +224,15 @@ int main(void) {
 
 	// Read desired song mode:
 	int songMode = pioDigitalRead(SONGMODESWITCH);
+#if PLAYGENERATEDSONG
+	const int * notes =  score;
+	const double speedMult = 1;
+	const int pitchMult = 1;
+#else
 	const int * notes = songMode ? &(song1[0][0]) : &(song2[0][0]);
 	const int speedMult = songMode ? 1 : 3;
 	const int pitchMult = songMode ? 1 : 2;
+#endif
 
 	// Play song:
 	int i = 0;
