@@ -7,7 +7,7 @@
 #include "SAM4S4B_libraries/SAM4S4B.h"
 #include "ArduboyTonesPitches.h"
 
-#define TONES_END 0x0000
+#define TONES_END -1
 #include "Songs/su.c"
 
 #define PLAYGENERATEDSONG 0
@@ -236,7 +236,8 @@ int main(void) {
 
 	// Play song:
 	int i = 0;
-	while (notes[i*2+1]) { // stop when duration is 0
+	while (notes[i*2]) { i++; } // skip rests at start
+	while (notes[i*2] != -1) {  // stop at TONES_END
 		playNote(notes[i*2] / pitchMult, notes[i*2+1] * speedMult);
 		i++;
 	}

@@ -21,7 +21,6 @@ Verilog/timing
 *.done
 *.eqn
 *.hex
-*.html
 *.jdi
 *.jpg
 *.mif
