@@ -136,7 +136,7 @@ const int song1[][2] = {
 {494,	125},
 {440,	500},
 {  0,	  1}, // stop
-{  0,	 -1}};
+{ -1,	  0}};
 
 // Pitch in Hz, duration in ms
 // Hedwig's Theme
@@ -201,8 +201,8 @@ const int song2[][2] = {
 { 466, 250 }, // Bflat5
 { 784, 125 }, // G5
 { 659 ,625 }, // E5
-{  0,	  1}, // stop
-{  0,  -1 }};
+{  0,	  1  }, // stop
+{ -1,   0 }};
 
 // near middle C:      A    B    C    D    E    F    G
 const int notes[] = { 196, 220, 240, 262, 294, 312, 350 }; // Hz
