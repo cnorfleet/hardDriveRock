@@ -8,9 +8,9 @@
 #include "ArduboyTonesPitches.h"
 
 #define TONES_END -1
-#include "Songs/su.c"
+#include "Songs/miiChannel.c"
 
-#define PLAYGENERATEDSONG 1
+#define PLAYGENERATEDSONG 0
 
 #define SONGMODESWITCH  PIO_PB2
 #define CHIP_SELECT_PIN PIO_PB10 // PB10 -> P126
@@ -236,8 +236,8 @@ int main(void) {
 
 	// Play song:
 	int i = 0;
-	while (notes[i*2]) { i++; } // skip rests at start
-	while (notes[i*2] != -1) {  // stop at TONES_END
+	while (notes[i*2] == 0) { i++; } // skip rests at start
+	while (notes[i*2] != -1) {       // stop at TONES_END
 		playNote(notes[i*2] / pitchMult, notes[i*2+1] * speedMult);
 		i++;
 	}
