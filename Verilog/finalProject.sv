@@ -162,7 +162,12 @@ module outputGen(input  logic clk, reset,
 	logic nextA, nextB, nextC, nextD;
 	
 	always_ff @(posedge clk) begin
-		
+		A <= nextA;
+		B <= nextB;
+		C <= nextC;
+		D <= nextD;
 	end
+	
+	assign nextA = waveOut;
 	
 endmodule

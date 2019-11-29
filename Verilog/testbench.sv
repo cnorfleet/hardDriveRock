@@ -1,14 +1,15 @@
 module testbench();
-    logic clk, reset, cs, sck, sdi, waveOut, signOut;
+    logic clk, reset, cs, sck, sdi;
+	 logic A, B, C, D;
     logic [23:0] packet;
     logic [31:0] i;
     
     // device under test
-    top dut(clk, reset, cs, sck, sdi, signOut, waveOut);
+    top dut(clk, reset, cs, sck, sdi, A, B, C, D);
     
     // test case
     initial begin
-        packet       <= 24'h0114ff;
+        packet <= 24'h0114ff;
 		  reset <= 1'b1; #22; reset <= 1'b0;
     end
     

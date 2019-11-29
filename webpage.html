@@ -2,13 +2,19 @@
 <html>
 <head>
 	<title>Caleb + Erik's uPs Webpage!</title>
-	<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 	<h1>Testing File Upload</h1>
-	<form id = "uploadbanner" method = "post" action = "#">
+	
+	<form action="ledon"><input type="submit" value="Turn the LED on!"></form>
+	<form action="ledoff"><input type="submit" value="Turn the LED off!"></form>
+	
+	<p> </p>
+	
+	<form id = "uploadbanner" method = "post" action = "upload">
 		  <input id = "fileupload" type = "file" />
-		  <input type = "submit" value = "submit" id = "submit" />
+		  <input type = "submit" value = "Upload" id = "submit" />
 	</form>
 </body>
 </html>

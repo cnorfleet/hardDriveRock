@@ -10,11 +10,11 @@
 #define TONES_END -1
 #include "Songs/su.c"
 
-#define PLAYGENERATEDSONG 0
+#define PLAYGENERATEDSONG 1
 
 #define SONGMODESWITCH  PIO_PB2
 #define CHIP_SELECT_PIN PIO_PB10 // PB10 -> P126
-#define CHIP_SELECT_PIN2 PIO_PA10
+#define CHIP_SELECT_PIN2 PIO_PA8
 // SPCK: PA14 -> P113
 // MOSI: PA13 -> P112
 // MISO: PA12 -> P111
@@ -136,7 +136,7 @@ const int song1[][2] = {
 {494,	125},
 {440,	500},
 {  0,	  1}, // stop
-{  0,	  0}};
+{  0,	 -1}};
 
 // Pitch in Hz, duration in ms
 // Hedwig's Theme
@@ -202,7 +202,7 @@ const int song2[][2] = {
 { 784, 125 }, // G5
 { 659 ,625 }, // E5
 {  0,	  1}, // stop
-{    0,  0 }};
+{  0,  -1 }};
 
 // near middle C:      A    B    C    D    E    F    G
 const int notes[] = { 196, 220, 240, 262, 294, 312, 350 }; // Hz
