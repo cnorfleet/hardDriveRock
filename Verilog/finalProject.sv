@@ -48,7 +48,9 @@ module spi(input  logic clk, reset,
 	logic       icanHasFlagsCopy = 1'b0; // copied into clk domain
 	logic[23:0] readData;                // data recieved over SPI
 	logic[23:0] readDataCopy;            // copied into clk domain
-	logic[25:0] watchdogCounter;         // 2^27/40MHz = ~3.36 seconds
+	logic[25:0] watchdogCounter;         // 2^27/40MHz = ~3.36 seconds %25:0
+	logic       watchdogTriggered;
+	logic[15:0] lastTuneWord;            // internal memory for feeding watchdog
 	
 	// assert chipSelect
 	// shift in frequency in two bytes (MSB first)
@@ -74,17 +76,30 @@ module spi(input  logic clk, reset,
 		end
 		
 		if(reset) begin
-			tuneWord        <= 16'b0;
-			volume          <=  8'b0;
-			watchdogCounter <= 26'b0;
-		end else if(icanHasFlagsCopy) begin
-			tuneWord        <= readDataCopy[23:8];
-			volume          <= readDataCopy[7:0];
-			watchdogCounter <= 26'b0;
+			tuneWord          <= 16'b0;
+			volume            <=  8'b0;
+			watchdogCounter   <= 26'b0;
+			watchdogTriggered <=  1'b0;
 		end else begin
-			watchdogCounter <= watchdogCounter + 26'b1;
-			if(&watchdogCounter) // same as watchdogCounter == 26'h4FFFFFF
-				tuneWord <= 16'b0; // stop playing
+			if(&watchdogCounter & (readDataCopy[23:8] == lastTuneWord)) begin
+				watchdogTriggered <=  1'b1; // stop playing
+			end else begin
+				watchdogCounter <= watchdogCounter + 26'b1;
+			end
+			if(icanHasFlagsCopy) begin
+				if(watchdogTriggered) begin
+					tuneWord <= 16'b0;
+					volume   <=  8'b0;
+				end else begin
+					tuneWord <= readDataCopy[23:8];
+					volume   <= readDataCopy[7:0];
+				end
+				lastTuneWord <= readDataCopy[23:8];
+				if(~(readDataCopy[23:8] == lastTuneWord)) begin
+					watchdogCounter   <= 26'b0;
+					watchdogTriggered <= 1'b0;
+				end
+			end
 		end
 	end
 endmodule
@@ -156,18 +171,48 @@ endmodule
 module outputGen(input  logic clk, reset,
 					  input  logic waveOut, sign,
 					  output logic A, B, C, D);
-	// TODO: need to generate FET driver signals based on sign and carrier
-	// 
+	// generates FET driver signals based on sign and output wave
+	// has 5 cycle dead time between driving in opposite directions
+	// A = high side left
+	// B = high side right
+	// C = low side left (corresponds to B)
+	// D = low side right (corresponds to A)
 	
+	// note: C should be on when either B is PWMing or when A
+	// is not on if A is PWMing, and vice versa for D
+	
+	`define MINDELAY 5
 	logic nextA, nextB, nextC, nextD;
+	logic[3:0] timeSinceLastA = 0;
+	logic[3:0] timeSinceLastB = 0;
+	logic[3:0] timeSinceLastC = 0;
+	logic[3:0] timeSinceLastD = 0;
 	
 	always_ff @(posedge clk) begin
-		A <= nextA;
-		B <= nextB;
-		C <= nextC;
-		D <= nextD;
+		if(reset) begin
+			timeSinceLastA <= 0;
+			timeSinceLastB <= 0;
+			timeSinceLastC <= 0;
+			timeSinceLastD <= 0;
+		end else begin // note: A and B are inverted
+			A <= ~(nextA & (timeSinceLastC > `MINDELAY));
+			B <= ~(nextB & (timeSinceLastD > `MINDELAY));
+			C <=  (nextC & (timeSinceLastA > `MINDELAY));
+			D <=  (nextD & (timeSinceLastB > `MINDELAY));
+			if(~A)                    timeSinceLastA <= 0;
+			else if(~&timeSinceLastA) timeSinceLastA <= timeSinceLastA + 1;
+			if(~B)                    timeSinceLastB <= 0;
+			else if(~&timeSinceLastB) timeSinceLastB <= timeSinceLastB + 1;
+			if( C)                    timeSinceLastC <= 0;
+			else if(~&timeSinceLastC) timeSinceLastC <= timeSinceLastC + 1;
+			if( D)                    timeSinceLastD <= 0;
+			else if(~&timeSinceLastD) timeSinceLastD <= timeSinceLastD + 1;
+		end
 	end
 	
-	assign nextA = waveOut;
+	assign nextA = (waveOut & ~sign);
+	assign nextB = (waveOut &  sign);
+	assign nextC = (~nextA |  sign);
+	assign nextD = (~nextB | ~sign);
 	
 endmodule
