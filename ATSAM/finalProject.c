@@ -238,6 +238,8 @@ int main(void) {
 	int i = 0;
 	while (notes[i*2] == 0) { i++; } // skip rests at start
 	while (notes[i*2] != -1) {       // stop at TONES_END
+		if((i != 0) && (notes[i*2] != 0) && (notes[i*2] == notes[(i-1)*2]))
+			playNote(0, 10);
 		playNote(notes[i*2] / pitchMult, notes[i*2+1] * speedMult);
 		i++;
 	}
