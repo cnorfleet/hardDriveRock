@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name Driver)(type Legacy)(uri /Users/erik/ownCloud/HMC/E155/Board/Driver/Driver.lib)(options "")(descr ""))
+  (lib (name Driver-rescue)(type Legacy)(uri ${KIPRJMOD}/Driver-rescue.lib)(options "")(descr ""))
+)
