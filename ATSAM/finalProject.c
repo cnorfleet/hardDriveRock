@@ -8,9 +8,9 @@
 #include "ArduboyTonesPitches.h"
 
 #define TONES_END -1
-#include "Songs/miiChannel.c"
+#include "Songs/demo/demo.c"
 
-#define PLAYGENERATEDSONG 0
+#define PLAYGENERATEDSONG 1
 
 #define SONGMODESWITCH  PIO_PB2
 #define CHIP_SELECT_PIN PIO_PB10 // PB10 -> P126
@@ -23,6 +23,8 @@
 #define CH_ID     TC_CH0_ID
 #define CLK_ID    TC_CLK5_ID
 #define CLK_SPEED TC_CLK5_SPEED
+
+#if PLAYGENERATEDSONG == 0
 
 // Pitch in Hz, duration in ms
 // Fur Elise
@@ -207,12 +209,16 @@ const int song2[][2] = {
 // near middle C:      A    B    C    D    E    F    G
 const int notes[] = { 196, 220, 240, 262, 294, 312, 350 }; // Hz
 
+#endif
+
 void playNote(int pitch, int dur);
 
 int main(void) {
 	// Initialize:
   samInit();
   pioInit();
+//	adcInit(ADC_MR_LOWRES_BITS_10);
+//	adcChannelInit(ADC_CH0, ADC_CGR_GAIN_X1, ADC_COR_OFFSET_OFF);
   spiInit(MCK_FREQ/244000, 0, 1);
   // "clock divide" = master clock frequency / desired baud rate
   // the phase for the SPI clock is 0 and the polarity is 0
@@ -221,6 +227,10 @@ int main(void) {
 	tcDelayInit();
 	pioPinMode(CHIP_SELECT_PIN, PIO_OUTPUT);
 	pioPinMode(CHIP_SELECT_PIN2, PIO_OUTPUT);
+	
+//	volatile uint32_t temp; // figure out adc volume control later
+//	while(1)
+//		temp = adcRead(ADC_CH0);
 
 	// Read desired song mode:
 	int songMode = pioDigitalRead(SONGMODESWITCH);
