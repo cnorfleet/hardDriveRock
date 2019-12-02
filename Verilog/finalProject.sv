@@ -181,7 +181,8 @@ module outputGen(input  logic clk, reset,
 	// note: C should be on when either B is PWMing or when A
 	// is not on if A is PWMing, and vice versa for D
 	
-	`define MINDELAY 5
+	`define HIGHMINDELAY 2
+	`define LOWMINDELAY  5
 	logic nextA, nextB, nextC, nextD;
 	logic[3:0] timeSinceLastA = 0;
 	logic[3:0] timeSinceLastB = 0;
@@ -195,10 +196,10 @@ module outputGen(input  logic clk, reset,
 			timeSinceLastC <= 0;
 			timeSinceLastD <= 0;
 		end else begin // note: A and B are inverted
-			A <= ~(nextA & (timeSinceLastC > `MINDELAY));
-			B <= ~(nextB & (timeSinceLastD > `MINDELAY));
-			C <=  (nextC & (timeSinceLastA > `MINDELAY));
-			D <=  (nextD & (timeSinceLastB > `MINDELAY));
+			A <= ~(nextA & (timeSinceLastC > `HIGHMINDELAY));
+			B <= ~(nextB & (timeSinceLastD > `HIGHMINDELAY));
+			C <=  (nextC & (timeSinceLastA > `LOWMINDELAY));
+			D <=  (nextD & (timeSinceLastB > `LOWMINDELAY));
 			if(~A)                    timeSinceLastA <= 0;
 			else if(~&timeSinceLastA) timeSinceLastA <= timeSinceLastA + 1;
 			if(~B)                    timeSinceLastB <= 0;
