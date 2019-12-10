@@ -2,7 +2,7 @@
 // Erik Meike and Caleb Norfleet
 // FPGA stuff for uPs final project
 
-`define NUM_TRACKS 2   // number of tracks (and tone generators) used
+`define NUM_TRACKS 1   // number of tracks (and tone generators) used
 `define PACKET_SIZE 24 // bits of data per track in each packet
 typedef logic[`PACKET_SIZE-1:0] packetType;
 
@@ -127,6 +127,27 @@ endmodule
 
 module outputGen(input  logic clk, reset,
 					  input  logic waveOut, sign,
+					  output logic leftHigh, leftEn, rightHigh, rightEn);
+	// generates FET driver signals based on sign and output wave
+	
+	always_ff @(posedge clk) begin
+		if(reset) begin
+			leftHigh  <= 1'b0;
+			leftEn    <= 1'b0;
+			rightHigh <= 1'b0;
+			rightEn   <= 1'b0;
+		end else begin
+			leftEn    <= 1;
+			rightEn   <= 1;
+			leftHigh  <= ( sign)&waveOut; //  sign^waveOut
+			rightHigh <= (~sign)&waveOut; //~(sign^waveOut)
+		end
+	end
+	
+endmodule
+
+/*module oldOutputGen(input  logic clk, reset,
+					  input  logic waveOut, sign,
 					  output logic A, B, C, D);
 	// generates FET driver signals based on sign and output wave
 	// has 5 cycle dead time between driving in opposite directions
@@ -173,7 +194,7 @@ module outputGen(input  logic clk, reset,
 	assign nextC = (~nextA |  sign);
 	assign nextD = (~nextB | ~sign);
 	
-endmodule
+endmodule*/
 
 module spi(input  logic clk, reset,
 			  input  logic chipSelect, sck, sdi,

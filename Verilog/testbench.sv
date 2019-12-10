@@ -1,4 +1,4 @@
-`define NUM_TRACKS 2   // number of tracks (and tone generators) used
+`define NUM_TRACKS 1   // number of tracks (and tone generators) used
 `define PACKET_SIZE 24 // bits of data per track in each packet
 
 module testbench();
