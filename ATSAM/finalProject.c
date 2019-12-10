@@ -9,10 +9,12 @@
 #include "ArduboyTonesPitches.h"
 #define TONES_END -1
 
+const int blankTrack[] = { 0, 1, -1, -1 };
+
 // Song to play:
-#include "Songs/demo/demo.c"
-#define NUM_TRACKS 1
-const int* tracks[NUM_TRACKS] = { &(score[0]) };
+#include "Songs/4channel/vivaLaVida.c"
+#define NUM_TRACKS 4
+const int* tracks[NUM_TRACKS] = { &(score1[0]), &(score2[0]), &(score3[0]), &(score4[0]) };
 
 #define CHIP_SELECT_PIN PIO_PB10 // PB10 -> P126
 #define CHIP_SELECT_PIN2 PIO_PA8

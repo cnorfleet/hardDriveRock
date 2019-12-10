@@ -2,7 +2,7 @@
 // Erik Meike and Caleb Norfleet
 // FPGA stuff for uPs final project
 
-`define NUM_TRACKS 1   // number of tracks (and tone generators) used
+`define NUM_TRACKS 4   // number of tracks (and tone generators) used
 `define PACKET_SIZE 24 // bits of data per track in each packet
 typedef logic[`PACKET_SIZE-1:0] packetType;
 
