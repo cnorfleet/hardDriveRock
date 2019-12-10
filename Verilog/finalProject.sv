@@ -1,19 +1,47 @@
-module top(input  logic clk, reset,
-			  input  logic chipSelect, sck, sdi,
-			  output logic A, B, C, D);
-	// Erik Meike and Caleb Norfleet
-	// FPGA stuff for uPs final project
+// finalProject.sv
+// Erik Meike and Caleb Norfleet
+// FPGA stuff for uPs final project
+
+`define NUM_TRACKS 2   // number of tracks (and tone generators) used
+`define PACKET_SIZE 24 // bits of data per track in each packet
+typedef logic[`PACKET_SIZE-1:0] packetType;
+
+module top(input  logic                  clk, reset,
+			  input  logic                  chipSelect, sck, sdi,
+			  output logic[`NUM_TRACKS-1:0] A, B, C, D);
 	
-	logic [15:0] tuneWord;   // frequency of note signal
-	logic        sign;       // note signal sign
-	logic [7:0]  amplitude;  // note signal amplitude
-	logic [7:0]  volume;     // unsigned volume of output
-	logic [7:0]  currentVol; // volume only updated after every 2^8 clock cycles
-	logic [7:0]  magnitude;  // amplitude of wave after multiplying with volume
-	logic        waveOut;    // output signal.  PWM at 40MHz to achieve amplitude at 156.25 kHz
-	logic        wgEn;       // interrrupt to request next amplitude from waveGen
+	packetType[`NUM_TRACKS-1:0] notePackets;
 	
-	spi s(clk, reset, chipSelect, sck, sdi, tuneWord, volume);
+	spi s(clk, reset, chipSelect, sck, sdi, notePackets);
+	
+	noteCore nc[`NUM_TRACKS-1:0](
+	 .clk        ( clk ),         // single bit replicated across instance array
+	 .reset      ( reset ),
+	 .notePacket ( notePackets ), // connected logic wider than port so split across instances
+	 .A          ( A ),
+	 .B          ( B ),
+	 .C          ( C ),
+	 .D          ( D )
+	);
+	
+endmodule
+
+module noteCore(input  logic      clk, reset,
+					 input  packetType notePacket,
+					 output logic      A, B, C, D);
+	// tone generator for one track
+	
+	logic[15:0] tuneWord;   // frequency of note signal
+	logic[7:0]  volume;     // unsigned volume of output
+	logic       sign;       // note signal sign
+	logic[7:0]  amplitude;  // note signal amplitude
+	logic[7:0]  currentVol; // volume only updated after every 2^8 clock cycles
+	logic[7:0]  magnitude;  // amplitude of wave after multiplying with volume
+	logic       waveOut;    // output signal.  PWM at 40MHz to achieve amplitude at 156.25 kHz
+	logic       wgEn;       // interrrupt to request next amplitude from waveGen
+	
+	assign tuneWord = notePacket[23:8];
+	assign volume   = notePacket[ 7:0];
 	
 	waveGen wg(clk, reset, wgEn, tuneWord, sign, amplitude);
 	
@@ -22,7 +50,7 @@ module top(input  logic clk, reset,
 		else if(wgEn) currentVol <= volume;
 	end
 	
-	logic [15:0] mult;
+	logic[15:0] mult;
 	assign mult = ({8'b0, amplitude} * {8'b0, currentVol});
 	assign magnitude = (mult[7] & ~&mult[15:8]) ? (mult[15:8] + 8'b1) : (mult[15:8]);
 	// ^ note: rounding with saturation
@@ -31,77 +59,6 @@ module top(input  logic clk, reset,
 	
 	outputGen og(clk, reset, waveOut, sign, A, B, C, D);
 	
-endmodule
-
-module spi(input  logic clk, reset,
-			  input  logic chipSelect,
-			  input  logic sck, 
-			  input  logic sdi,
-			  output logic [15:0] tuneWord,
-			  output logic [7:0]  volume);
-	// Accepts frequency and volume input over SPI from ATSAM
-	// Internal freq and volume only updated after full packet recieved
-	// Note: contains ~3.4 second watchdog timer (turns off music)
-	
-	logic[4:0]  dataCount        = 5'b0; // amt of data in SPI packet so far
-	logic       icanHasFlags     = 1'b0; // indicates whether readData is good
-	logic       icanHasFlagsCopy = 1'b0; // copied into clk domain
-	logic[23:0] readData;                // data recieved over SPI
-	logic[23:0] readDataCopy;            // copied into clk domain
-	logic[25:0] watchdogCounter;         // 2^27/40MHz = ~3.36 seconds %25:0
-	logic       watchdogTriggered;
-	logic[15:0] lastTuneWord;            // internal memory for feeding watchdog
-	
-	// assert chipSelect
-	// shift in frequency in two bytes (MSB first)
-	// shift in volume in one byte
-	// deassert chipSelect or just repeat
-	
-	always_ff @(posedge sck or negedge chipSelect) begin
-		if(~chipSelect) begin          
-			dataCount    <= 5'b0;
-		end
-		else begin
-			readData <= {readData[22:0], sdi};
-			dataCount <= dataCount + 5'b1;
-			if((dataCount + 5'b1) == 5'd24) icanHasFlags <= 1'b1;
-			else                            icanHasFlags <= 1'b0;
-		end
-	end
-	
-	always_ff @(posedge clk) begin
-		if(~chipSelect) begin // copy over from sck domain if cs is low
-			readDataCopy     <= readData;
-			icanHasFlagsCopy <= icanHasFlags;
-		end
-		
-		if(reset) begin
-			tuneWord          <= 16'b0;
-			volume            <=  8'b0;
-			watchdogCounter   <= 26'b0;
-			watchdogTriggered <=  1'b0;
-		end else begin
-			if(&watchdogCounter & (readDataCopy[23:8] == lastTuneWord)) begin
-				watchdogTriggered <=  1'b1; // stop playing
-			end else begin
-				watchdogCounter <= watchdogCounter + 26'b1;
-			end
-			if(icanHasFlagsCopy) begin
-				if(watchdogTriggered) begin
-					tuneWord <= 16'b0;
-					volume   <=  8'b0;
-				end else begin
-					tuneWord <= readDataCopy[23:8];
-					volume   <= readDataCopy[7:0];
-				end
-				lastTuneWord <= readDataCopy[23:8];
-				if(~(readDataCopy[23:8] == lastTuneWord)) begin
-					watchdogCounter   <= 26'b0;
-					watchdogTriggered <= 1'b0;
-				end
-			end
-		end
-	end
 endmodule
 
 module waveGen(input  logic clk, reset, wgEn,
@@ -201,13 +158,13 @@ module outputGen(input  logic clk, reset,
 			C <=  (nextC & (timeSinceLastA > `LOWMINDELAY));
 			D <=  (nextD & (timeSinceLastB > `LOWMINDELAY));
 			if(~A)                    timeSinceLastA <= 0;
-			else if(~&timeSinceLastA) timeSinceLastA <= timeSinceLastA + 1;
+			else if(~&timeSinceLastA) timeSinceLastA <= timeSinceLastA + 4'b1;
 			if(~B)                    timeSinceLastB <= 0;
-			else if(~&timeSinceLastB) timeSinceLastB <= timeSinceLastB + 1;
+			else if(~&timeSinceLastB) timeSinceLastB <= timeSinceLastB + 4'b1;
 			if( C)                    timeSinceLastC <= 0;
-			else if(~&timeSinceLastC) timeSinceLastC <= timeSinceLastC + 1;
+			else if(~&timeSinceLastC) timeSinceLastC <= timeSinceLastC + 4'b1;
 			if( D)                    timeSinceLastD <= 0;
-			else if(~&timeSinceLastD) timeSinceLastD <= timeSinceLastD + 1;
+			else if(~&timeSinceLastD) timeSinceLastD <= timeSinceLastD + 4'b1;
 		end
 	end
 	
@@ -216,4 +173,73 @@ module outputGen(input  logic clk, reset,
 	assign nextC = (~nextA |  sign);
 	assign nextD = (~nextB | ~sign);
 	
+endmodule
+
+module spi(input  logic clk, reset,
+			  input  logic chipSelect, sck, sdi,
+			  output packetType[`NUM_TRACKS-1:0] notePackets);
+	// Accepts frequency and volume input over SPI from ATSAM
+	// Internal freq and volume only updated after full packet recieved
+	// Note: contains ~3.4 second watchdog timer (turns off music)
+	
+	// SPI interface protocol:
+	//   assert chipSelect
+	//   for each track (in order):
+	//     shift in frequency in two bytes (MSB first)
+	//     shift in volume in one byte
+	//   deassert chipSelect
+	
+	logic[31:0] dataCount        = 32'b0; // amt of data in SPI packet so far
+	logic       icanHasFlags     = 1'b0;  // indicates whether readData is good
+	logic       icanHasFlagsCopy = 1'b0;  // copied into clk domain
+	logic[25:0] watchdogCounter;          // 2^27/40MHz = ~3.36 seconds %25:0
+	logic       watchdogTriggered;
+	
+	logic[(`PACKET_SIZE*`NUM_TRACKS)-1:0] readData;     // data recieved over SPI
+	logic[(`PACKET_SIZE*`NUM_TRACKS)-1:0] readDataCopy; // copied into clk domain
+	logic[(`PACKET_SIZE*`NUM_TRACKS)-1:0] lastReadData; // internal memory for feeding watchdog
+	
+	always_ff @(posedge sck or negedge chipSelect) begin
+		if(~chipSelect) begin          
+			dataCount    <= 32'b0;
+		end
+		else begin
+			readData <= {readData[(`PACKET_SIZE*`NUM_TRACKS)-2:0], sdi};
+			dataCount <= dataCount + 32'b1;
+			if((dataCount + 32'b1) == (`PACKET_SIZE*`NUM_TRACKS))
+					icanHasFlags <= 1'b1;
+			else	icanHasFlags <= 1'b0;
+		end
+	end
+	
+	always_ff @(posedge clk) begin
+		if(~chipSelect) begin // copy over from sck domain if cs is low
+			readDataCopy     <= readData;
+			icanHasFlagsCopy <= icanHasFlags;
+		end
+		
+		if(reset) begin
+			notePackets       <= {`NUM_TRACKS*`PACKET_SIZE{1'b0}};
+			watchdogCounter   <= 26'b0;
+			watchdogTriggered <=  1'b0;
+		end else begin
+			if(&watchdogCounter & (readDataCopy == lastReadData)) begin
+				watchdogTriggered <=  1'b1;               // stop playing if watchdog counter at max val
+			end else begin
+				watchdogCounter <= watchdogCounter + 26'b1;
+			end
+			if(icanHasFlagsCopy) begin                   // if the packet is valid, update tracks
+				if(watchdogTriggered) begin               // if watchdog triggered, don't play
+					notePackets <= {`NUM_TRACKS*`PACKET_SIZE{1'b0}};
+				end else begin                            // otherwise update tracks with current note
+					notePackets <= readDataCopy;
+				end
+				lastReadData <= readDataCopy;
+				if(~(readDataCopy == lastReadData)) begin // if we've recieved a new packet, feed watchdog
+					watchdogCounter   <= 26'b0;
+					watchdogTriggered <= 1'b0;
+				end
+			end
+		end
+	end
 endmodule
