@@ -8,7 +8,7 @@ typedef logic[`PACKET_SIZE-1:0] packetType;
 
 module top(input  logic                  clk, reset,
 			  input  logic                  chipSelect, sck, sdi,
-			  output logic[`NUM_TRACKS-1:0] A, B, C, D);
+			  output logic[`NUM_TRACKS-1:0] leftHigh, leftEn, rightHigh, rightEn);
 	
 	packetType[`NUM_TRACKS-1:0] notePackets;
 	
@@ -18,17 +18,17 @@ module top(input  logic                  clk, reset,
 	 .clk        ( clk ),         // single bit replicated across instance array
 	 .reset      ( reset ),
 	 .notePacket ( notePackets ), // connected logic wider than port so split across instances
-	 .A          ( A ),
-	 .B          ( B ),
-	 .C          ( C ),
-	 .D          ( D )
+	 .leftHigh   ( leftHigh ),
+	 .leftEn     ( leftEn ),
+	 .rightHigh  ( rightHigh ),
+	 .rightEn    ( rightEn )
 	);
 	
 endmodule
 
 module noteCore(input  logic      clk, reset,
 					 input  packetType notePacket,
-					 output logic      A, B, C, D);
+					 output logic      leftHigh, leftEn, rightHigh, rightEn);
 	// tone generator for one track
 	
 	logic[15:0] tuneWord;   // frequency of note signal
@@ -57,7 +57,7 @@ module noteCore(input  logic      clk, reset,
 	
 	pwmGen pg(clk, reset, magnitude, wgEn, waveOut);
 	
-	outputGen og(clk, reset, waveOut, sign, A, B, C, D);
+	outputGen og(clk, reset, waveOut, sign, leftHigh, leftEn, rightHigh, rightEn);
 	
 endmodule
 
@@ -145,56 +145,6 @@ module outputGen(input  logic clk, reset,
 	end
 	
 endmodule
-
-/*module oldOutputGen(input  logic clk, reset,
-					  input  logic waveOut, sign,
-					  output logic A, B, C, D);
-	// generates FET driver signals based on sign and output wave
-	// has 5 cycle dead time between driving in opposite directions
-	// A = high side left
-	// B = high side right
-	// C = low side left (corresponds to B)
-	// D = low side right (corresponds to A)
-	
-	// note: C should be on when either B is PWMing or when A
-	// is not on if A is PWMing, and vice versa for D
-	
-	`define HIGHMINDELAY 2
-	`define LOWMINDELAY  5
-	logic nextA, nextB, nextC, nextD;
-	logic[3:0] timeSinceLastA = 0;
-	logic[3:0] timeSinceLastB = 0;
-	logic[3:0] timeSinceLastC = 0;
-	logic[3:0] timeSinceLastD = 0;
-	
-	always_ff @(posedge clk) begin
-		if(reset) begin
-			timeSinceLastA <= 0;
-			timeSinceLastB <= 0;
-			timeSinceLastC <= 0;
-			timeSinceLastD <= 0;
-		end else begin // note: A and B are inverted
-			A <= ~(nextA & (timeSinceLastC > `HIGHMINDELAY));
-			B <= ~(nextB & (timeSinceLastD > `HIGHMINDELAY));
-			C <=  (nextC & (timeSinceLastA > `LOWMINDELAY));
-			D <=  (nextD & (timeSinceLastB > `LOWMINDELAY));
-			if(~A)                    timeSinceLastA <= 0;
-			else if(~&timeSinceLastA) timeSinceLastA <= timeSinceLastA + 4'b1;
-			if(~B)                    timeSinceLastB <= 0;
-			else if(~&timeSinceLastB) timeSinceLastB <= timeSinceLastB + 4'b1;
-			if( C)                    timeSinceLastC <= 0;
-			else if(~&timeSinceLastC) timeSinceLastC <= timeSinceLastC + 4'b1;
-			if( D)                    timeSinceLastD <= 0;
-			else if(~&timeSinceLastD) timeSinceLastD <= timeSinceLastD + 4'b1;
-		end
-	end
-	
-	assign nextA = (waveOut & ~sign);
-	assign nextB = (waveOut &  sign);
-	assign nextC = (~nextA |  sign);
-	assign nextD = (~nextB | ~sign);
-	
-endmodule*/
 
 module spi(input  logic clk, reset,
 			  input  logic chipSelect, sck, sdi,
