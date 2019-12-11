@@ -1,4 +1,4 @@
-`define NUM_TRACKS 1   // number of tracks (and tone generators) used
+`define NUM_TRACKS 4   // number of tracks (and tone generators) used
 `define PACKET_SIZE 24 // bits of data per track in each packet
 
 module testbench();
@@ -15,7 +15,7 @@ module testbench();
 			if(`NUM_TRACKS == 1)
 				packet <= 24'h0114ff;
 			else
-				packet <= 48'h0114ff0217ff;
+				packet <= 96'h0114ff0217ff0114ff0217ff;
 			reset <= 1'b1; #22; reset <= 1'b0;
     end
     

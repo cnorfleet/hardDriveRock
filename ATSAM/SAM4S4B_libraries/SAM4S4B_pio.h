@@ -237,6 +237,7 @@ void pioPinMode(int pin, int function) {
         case PIO_INPUT:
             port->PIO_PER     |=  (1 << offset); // Sets a pin to be PIO-controlled
             port->PIO_ODR     |=  (1 << offset); // Configures an I/O line as an input
+						break;
         case PIO_OUTPUT:
             port->PIO_PER     |=  (1 << offset); // Sets a pin to be PIO-controlled
             port->PIO_OER     |=  (1 << offset); // Configures an I/O line as an output
