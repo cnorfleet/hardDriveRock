@@ -13,8 +13,8 @@
 const int blankTrack[] = { 0, 1, -1, -1 };
 
 // Song to play:
-//#include "Songs/4channel/vivaLaVida.c"
-#include "Songs/4channel/onTopOfTheWorld.c"
+#include "Songs/4channel/vivaLaVida.c"
+//#include "Songs/4channel/onTopOfTheWorld.c"
 //#include "Songs/4channel/cantinaBand.c"
 //#include "Songs/4channel/justGiveMeAReason.c"
 //#include "Songs/4channel/dancingQueen.c"
@@ -52,12 +52,13 @@ uint8_t  currentVolume = 0b11111111;
 int remainingDur[NUM_TRACKS]; // time in ms until next note change per track
 int currentDur = 0;           // minumum time in ms until next note change
 char bytes[NUM_TRACKS*3];     // byte data to send to FPGA over SPI
-char paused = 0;              // indicates whether the sond is currently paused
+char paused = 1;              // indicates whether the sond is currently paused
 
 uint16_t getTuneWord(int pitch);
 int getMinDur(void);
 void updateTrackArray(int track);
 void initTrackArrays(void);
+void restartSongTracks(void);
 char isAllRests(void);
 char isStillPlaying(void);
 void progressNotes(int timePassed);
@@ -93,18 +94,25 @@ int main(void) {
 	pioPinMode(LED7, PIO_OUTPUT);
 
 	// Get ready to play song:
-	tcDelay(10); // allow for FPGA to start up
-	initTrackArrays();
-	while(isAllRests()) {
-		progressNotes(getMinDur()); // skip rests at start
-	}
+	tcDelay(1); // allow for stuff to start up
+	restartSongTracks();
 	
 	// Play song:
-	while (isStillPlaying()) {
+	while (1) {
+		if(!isStillPlaying()) { // stop playing at end of song
+			paused = 1;
+			for(int i = 0; i < TONES_END; i++) {
+				currentTuneWord[i] = 0;
+				remainingDur[i] = -1;
+				updateBytes(i);
+			}
+			sendNotes();
+			restartSongTracks();
+		}
+		updateVolume(); // display current volume on LEDs even if paused
 		if(!paused) {
 			tcDelay(currentDur);
 			progressNotes(currentDur);
-			updateVolume();
 			sendNotes();
 		}
 		if(paused && pioDigitalRead(PLAY_PIN)) // resume playing
@@ -114,19 +122,6 @@ int main(void) {
 			sendNotes();
 			paused = 1;
 		}
-	}
-	
-	// stop playing at end of song:
-	for(int i = 0; i < TONES_END; i++) {
-		currentTuneWord[i] = 0;
-		remainingDur[i] = -1;
-		updateBytes(i);
-	}
-	sendNotes();
-	
-	// keep displaying current volume on LEDs even after song ends:
-	while(1) {
-		updateVolume();
 	}
 }
 
@@ -159,6 +154,13 @@ void initTrackArrays(void) {
 	currentDur = getMinDur();
 }
 
+void restartSongTracks(void) {
+	initTrackArrays();
+	while(isAllRests()) {
+		progressNotes(getMinDur()); // skip rests at start
+	}
+}
+
 char isAllRests(void) {
 	for(int i = 0; i < NUM_TRACKS; i++) {
 		if(currentTuneWord[i] != 0) {
@@ -175,7 +177,12 @@ char isStillPlaying(void) {
 void progressNotes(int timePassed) {
 	// update tracks after timePassed (in ms)
 	for(int i = 0; i < NUM_TRACKS; i++) {
-		if(remainingDur[i] == -1) continue;
+		if(remainingDur[i] == -1) {
+			currentTuneWord[i] = 0;
+			remainingDur[i] = -1;
+			updateBytes(i);
+			continue;
+		}
 		remainingDur[i] = remainingDur[i] - timePassed;
 		if(remainingDur[i] <= 0) { // continute to next note
 			int lastRemainingDur = remainingDur[i];
