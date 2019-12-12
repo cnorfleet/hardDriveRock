@@ -13,12 +13,15 @@
 const int blankTrack[] = { 0, 1, -1, -1 };
 
 // Song to play:
-#include "Songs/4channel/vivaLaVida.c"
+//#include "Songs/4channel/ringxms.c"
 //#include "Songs/4channel/onTopOfTheWorld.c"
 //#include "Songs/4channel/cantinaBand.c"
+#include "Songs/4channel/vivaLaVida.c"
 //#include "Songs/4channel/justGiveMeAReason.c"
 //#include "Songs/4channel/dancingQueen.c"
 //#include "Songs/4channel/payphone.c"
+//#include "Songs/4channel/stevenUniverse.c"
+//#include "Songs/4channel/weAreNumberOne.c"
 #define NUM_TRACKS 4
 const int* tracks[NUM_TRACKS] = { &(score1[0]), &(score2[0]), &(score3[0]), &(score4[0]) };
 //const int* tracks[NUM_TRACKS] = { &(score[0]), &(score[0]), &(score[0]), &(score[0]) };
