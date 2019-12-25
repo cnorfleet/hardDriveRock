@@ -119,8 +119,11 @@ int main(void) {
 			progressNotes(currentDur);
 			sendNotes();
 		}
-		if(paused && pioDigitalRead(PLAY_PIN)) // resume playing
+		if(paused && pioDigitalRead(PLAY_PIN)) { // resume playing
 			paused = 0;
+			updateAllBytes();
+			sendNotes();
+		}
 		else if(!paused && pioDigitalRead(PAUSE_PIN)) { // pause
 			updateAllBytesForPaused();
 			sendNotes();
@@ -163,6 +166,7 @@ void restartSongTracks(void) {
 	while(isAllRests()) {
 		progressNotes(getMinDur()); // skip rests at start
 	}
+	updateAllBytes();
 }
 
 char isAllRests(void) {
