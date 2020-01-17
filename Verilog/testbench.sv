@@ -1,8 +1,6 @@
 `define NUM_TRACKS 1   // number of tracks (and tone generators) used
 `define PACKET_SIZE 24 // bits of data per track in each packet
 
-typedef enum logic { PWM, PDM } OUTPUT_TYPES;
-
 module testbench();
     logic clk, reset, cs, sck, sdi;
 	 logic[`NUM_TRACKS-1:0] A, B, C, D;
@@ -18,7 +16,7 @@ module testbench();
 	 // so that we don't just get a one-bit sum with a lot of overflowing
     
     // device under test
-    top #(`NUM_TRACKS, PWM) dut (clk, reset, cs, sck, sdi, A, B, C, D);
+    top #(`NUM_TRACKS) dut (clk, reset, cs, sck, sdi, A, B, C, D);
     
     // test case
     initial begin

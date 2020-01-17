@@ -2,13 +2,14 @@
 // Erik Meike and Caleb Norfleet
 // FPGA stuff for uPs final project
 
-typedef enum logic { PWM, PDM } OUTPUT_TYPES;
+// method of producing output signal from amplitude:
+`define USING_PWM
+// `define USING_PDM
 
 `define PACKET_SIZE 24 // bits of data per track in each packet
 typedef logic[`PACKET_SIZE-1:0] packetType;
 
-module top #(parameter              NUM_TRACKS  = 4,   // number of tracks (and tone generators) used
-				 parameter OUTPUT_TYPES OUTPUT_TYPE = PWM) // method of producing output signal from amplitude
+module top #(parameter NUM_TRACKS = 4) // number of tracks (and tone generators) used
 				(input  logic                 clk, reset,
 				 input  logic                 chipSelect, sck, sdi,
 				 output logic[NUM_TRACKS-1:0] leftHigh, leftEn, rightHigh, rightEn);
@@ -17,7 +18,7 @@ module top #(parameter              NUM_TRACKS  = 4,   // number of tracks (and 
 	
 	spi #(NUM_TRACKS) s(clk, reset, chipSelect, sck, sdi, notePackets);
 	
-	noteCore #(OUTPUT_TYPE) nc[NUM_TRACKS-1:0](
+	noteCore nc[NUM_TRACKS-1:0](
 	 .clk        ( clk ),         // single bit replicated across instance array
 	 .reset      ( reset ),
 	 .notePacket ( notePackets ), // connected logic wider than port so split across instances
@@ -29,10 +30,9 @@ module top #(parameter              NUM_TRACKS  = 4,   // number of tracks (and 
 	
 endmodule
 
-module noteCore #(parameter OUTPUT_TYPES OUTPUT_TYPE = PWM)
-					  (input  logic      clk, reset,
-						input  packetType notePacket,
-						output logic      leftHigh, leftEn, rightHigh, rightEn);
+module noteCore (input  logic      clk, reset,
+					  input  packetType notePacket,
+					  output logic      leftHigh, leftEn, rightHigh, rightEn);
 	// tone generator for one track
 	
 	logic[15:0] tuneWord;   // frequency of note signal
@@ -60,12 +60,17 @@ module noteCore #(parameter OUTPUT_TYPES OUTPUT_TYPE = PWM)
 	// ^ note: rounding with saturation
 	
 	// generate our waveOut signal using the method of choice from OUTPUT_TYPES
-	if(OUTPUT_TYPE==PWM) begin :generate_block
+	`ifndef USING_PWM
+	`ifndef USING_PDM
+	`define USING_PWM
+	`endif
+	`endif
+	`ifdef USING_PWM
 		pwmGen pg(clk, reset, magnitude, wgEn, waveOut);
-	end :generate_block
-	else begin :generate_block
+	`endif
+	`ifdef USING_PDM
 		pdmGen pg(clk, reset, magnitude, wgEn, waveOut);
-	end :generate_block
+	`endif
 	
 	outputGen og(clk, reset, waveOut, sign, leftHigh, leftEn, rightHigh, rightEn);
 	
