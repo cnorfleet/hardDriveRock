@@ -2,8 +2,11 @@
 // Erik Meike and Caleb Norfleet
 // FPGA stuff for uPs final project
 
+typedef enum logic { PWM, PDM } OUTPUT_TYPES;
+
 `define NUM_TRACKS 4   // number of tracks (and tone generators) used
 `define PACKET_SIZE 24 // bits of data per track in each packet
+`define OUTPUT_TYPE (PWM)
 typedef logic[`PACKET_SIZE-1:0] packetType;
 
 module top(input  logic                  clk, reset,
@@ -55,7 +58,10 @@ module noteCore(input  logic      clk, reset,
 	assign magnitude = (mult[7] & ~&mult[15:8]) ? (mult[15:8] + 8'b1) : (mult[15:8]);
 	// ^ note: rounding with saturation
 	
-	pwmGen pg(clk, reset, magnitude, wgEn, waveOut);
+//	if(`OUTPUT_TYPE === PWM) // TODO: figure out how to do this conditionally
+		pwmGen pg(clk, reset, magnitude, wgEn, waveOut);
+//	else
+//		pdmGen pg(clk, reset, magnitude, wgEn, waveOut);
 	
 	outputGen og(clk, reset, waveOut, sign, leftHigh, leftEn, rightHigh, rightEn);
 	
@@ -110,8 +116,9 @@ module pwmGen(input  logic      clk, reset,
 				  output logic      wgEn,
 				  output logic      waveOut);
 	// modulates carrier signal based on sine wave
-
+	// uses pulse width modulation (width of pulses reflects amplitude)
 	// wave gen runs at 156.25 kHz = 40MHz / 256 (aka 2^8)
+	
 	logic[7:0] waveCounter;
 	always_ff @(posedge clk) begin
 		if(reset)  waveCounter <= 8'b10000000;
@@ -122,6 +129,31 @@ module pwmGen(input  logic      clk, reset,
 	always_ff @(posedge clk) begin
 		waveOut <= (~reset & (waveCounter < magnitude));
 		// PWM carrier by magnitude
+	end
+endmodule
+
+module pdmGen(input  logic      clk, reset,
+				  input  logic[7:0] magnitude,
+				  output logic      wgEn,
+				  output logic      waveOut);
+	// modulates carrier signal based on sine wave
+	// uses pulse width modulation (density of pulses reflects amplitude)
+	// wave gen runs at 156.25 kHz = 40MHz / 256 (aka 2^8)
+	
+	logic[7:0] waveCounter;
+	always_ff @(posedge clk) begin
+		if(reset)  waveCounter <= 8'b10000000;
+		else       waveCounter <= waveCounter + 8'b1;
+	end
+	assign wgEn = (waveCounter == 8'b0);
+	
+	logic[8:0] acc;
+	always_ff @(posedge clk) begin
+		if(reset) acc <= 9'b0;
+		else      acc <=      ({1'b0, acc[7:0]} + {1'b0, magnitude});
+		waveOut <= (~reset & (({1'b0, acc[7:0]} + {1'b0, magnitude})[8]));
+		// assert output when acc overflows.  this means that the density with
+		// which output is high reflects the amplitude
 	end
 endmodule
 
