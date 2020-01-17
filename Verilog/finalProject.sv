@@ -3,46 +3,64 @@
 // FPGA stuff for uPs final project
 
 // method of producing output signal from amplitude:
-`define USING_PWM
-//`define USING_PDM
+//`define USING_PWM
+`define USING_PDM
 
 `define PACKET_SIZE 24 // bits of data per track in each packet
 typedef logic[`PACKET_SIZE-1:0] packetType;
 
-module top #(parameter NUM_TRACKS = 4) // number of tracks (and tone generators) used
-				(input  logic                 clk, reset,
-				 input  logic                 chipSelect, sck, sdi,
-				 output logic[NUM_TRACKS-1:0] leftHigh, leftEn, rightHigh, rightEn);
+module top #(parameter NUM_INPUTS  = 4, // number of tracks (tone generators)
+				 parameter NUM_OUTPUTS = 4) // number of output channels
+				(input  logic                  clk, reset,
+				 input  logic                  chipSelect, sck, sdi,
+				 output logic[NUM_OUTPUTS-1:0] leftHigh, leftEn, rightHigh, rightEn);
 	
-	packetType[NUM_TRACKS-1:0] notePackets;
+	packetType[NUM_INPUTS-1:0] notePackets; // spi packets for each track
+	logic     [NUM_INPUTS-1:0] sign;        // note signal sign for each track
+	logic[7:0][NUM_INPUTS-1:0] magnitude;   // magnitude of note signal (multiplied with volume)
 	
-	spi #(NUM_TRACKS) s(clk, reset, chipSelect, sck, sdi, notePackets);
+	logic[7:0] waveCounter; // keeps track of position between amplitude updates, needed for PWM
+	logic      wgEn;        // interrrupt to request next amplitude from waveGen
 	
-	noteCore nc[NUM_TRACKS-1:0](
+	spi #(NUM_INPUTS) s(clk, reset, chipSelect, sck, sdi, notePackets);
+	
+	toneGenerator tg[NUM_INPUTS-1:0](
 	 .clk        ( clk ),         // single bit replicated across instance array
 	 .reset      ( reset ),
 	 .notePacket ( notePackets ), // connected logic wider than port so split across instances
-	 .leftHigh   ( leftHigh ),
-	 .leftEn     ( leftEn ),
-	 .rightHigh  ( rightHigh ),
-	 .rightEn    ( rightEn )
+	 .wgEn       ( wgEn ),
+	 .sign       ( sign ),
+	 .magnitude  ( magnitude )
+	);
+	
+	amplitudeUpdateCounter auc(clk, reset, waveCounter, wgEn);
+	
+	outputChannel oc[NUM_OUTPUTS-1:0](
+	 .clk         ( clk ),
+	 .reset       ( reset ),
+	 .sign        ( sign ),
+	 .magnitude   ( magnitude ),
+	 .waveCounter ( waveCounter ),
+	 .leftHigh    ( leftHigh ),
+	 .leftEn      ( leftEn ),
+	 .rightHigh   ( rightHigh ),
+	 .rightEn     ( rightEn )
 	);
 	
 endmodule
 
-module noteCore (input  logic      clk, reset,
-					  input  packetType notePacket,
-					  output logic      leftHigh, leftEn, rightHigh, rightEn);
+module toneGenerator(input  logic      clk, reset,
+							input  packetType notePacket,
+							input  logic      wgEn,
+							output logic      sign,
+							output logic[7:0] magnitude);
 	// tone generator for one track
+	// produces amplitude and sign for that track's note signal
 	
 	logic[15:0] tuneWord;   // frequency of note signal
 	logic[7:0]  volume;     // unsigned volume of output
-	logic       sign;       // note signal sign
-	logic[7:0]  amplitude;  // note signal amplitude
 	logic[7:0]  currentVol; // volume only updated after every 2^8 clock cycles
-	logic[7:0]  magnitude;  // amplitude of wave after multiplying with volume
-	logic       waveOut;    // output signal.  PWM at 40MHz to achieve amplitude at 156.25 kHz
-	logic       wgEn;       // interrrupt to request next amplitude from waveGen
+	logic[7:0]  amplitude;  // amplitude of note signal (before multiplying with volume)
 	
 	assign tuneWord = notePacket[23:8];
 	assign volume   = notePacket[ 7:0];
@@ -59,6 +77,18 @@ module noteCore (input  logic      clk, reset,
 	assign magnitude = (mult[7] & ~&mult[15:8]) ? (mult[15:8] + 8'b1) : (mult[15:8]);
 	// ^ note: rounding with saturation
 	
+endmodule
+
+module outputChannel(input  logic      clk, reset,
+							input  logic      sign,
+							input  logic[7:0] magnitude,
+							input  logic[7:0] waveCounter,
+							output logic      leftHigh, leftEn, rightHigh, rightEn);
+	// output channel for one output line
+	// produces output signals based on amplitude and sign
+	
+	logic waveOut; // output signal. Modulated at 40MHz to achieve amplitude at 156.25 kHz
+	
 	// generate our waveOut signal using the method of choice from OUTPUT_TYPES
 	`ifndef USING_PWM
 	`ifndef USING_PDM
@@ -66,10 +96,10 @@ module noteCore (input  logic      clk, reset,
 	`endif
 	`endif
 	`ifdef USING_PWM
-		pwmGen pg(clk, reset, magnitude, wgEn, waveOut);
+		pwmGen pg(clk, reset, magnitude, waveCounter, waveOut);
 	`endif
 	`ifdef USING_PDM
-		pdmGen pg(clk, reset, magnitude, wgEn, waveOut);
+		pdmGen pg(clk, reset, magnitude, waveOut);
 	`endif
 	
 	outputGen og(clk, reset, waveOut, sign, leftHigh, leftEn, rightHigh, rightEn);
@@ -122,39 +152,23 @@ endmodule
 
 module pwmGen(input  logic      clk, reset,
 				  input  logic[7:0] magnitude,
-				  output logic      wgEn,
+				  input  logic[7:0] waveCounter,
 				  output logic      waveOut);
 	// modulates carrier signal based on sine wave
 	// uses pulse width modulation (width of pulses reflects amplitude)
-	// wave gen runs at 156.25 kHz = 40MHz / 256 (aka 2^8)
-	
-	logic[7:0] waveCounter;
-	always_ff @(posedge clk) begin
-		if(reset)  waveCounter <= 8'b10000000;
-		else       waveCounter <= waveCounter + 8'b1;
-	end
-	assign wgEn = (waveCounter == 8'b0);
 	
 	always_ff @(posedge clk) begin
 		waveOut <= (~reset & (waveCounter < magnitude));
-		// PWM carrier by magnitude
 	end
+	
 endmodule
 
 module pdmGen(input  logic      clk, reset,
 				  input  logic[7:0] magnitude,
-				  output logic      wgEn,
 				  output logic      waveOut);
 	// modulates carrier signal based on sine wave
 	// uses pulse width modulation (density of pulses reflects amplitude)
 	// wave gen runs at 156.25 kHz = 40MHz / 256 (aka 2^8)
-	
-	logic[7:0] waveCounter;
-	always_ff @(posedge clk) begin
-		if(reset)  waveCounter <= 8'b10000000;
-		else       waveCounter <= waveCounter + 8'b1;
-	end
-	assign wgEn = (waveCounter == 8'b0);
 	
 	logic[8:0] acc, nextAcc;
 	assign nextAcc = ({1'b0, acc[7:0]} + {1'b0, magnitude});
@@ -165,6 +179,19 @@ module pdmGen(input  logic      clk, reset,
 		// assert output when acc overflows.  this means that the density with
 		// which output is high reflects the amplitude
 	end
+endmodule
+
+module amplitudeUpdateCounter(input  logic      clk, reset,
+										output logic[7:0] waveCounter,
+										output logic      wgEn);
+	// wave gen runs at 156.25 kHz = 40MHz / 256 (aka 2^8)
+	
+	always_ff @(posedge clk) begin
+		if(reset)  waveCounter <= 8'b10000000;
+		else       waveCounter <= waveCounter + 8'b1;
+	end
+	assign wgEn = (waveCounter == 8'b0);
+	
 endmodule
 
 module outputGen(input  logic clk, reset,
