@@ -231,8 +231,8 @@ module spi #(parameter NUM_TRACKS = 4)
 	//   deassert chipSelect
 	
 	logic[31:0] dataCount        = 32'b0; // amt of data in SPI packet so far
-	logic       icanHasFlags     = 1'b0;  // indicates whether readData is good
-	logic       icanHasFlagsCopy = 1'b0;  // copied into clk domain
+	logic       iCanHasFlags     = 1'b0;  // indicates whether readData is good
+	logic       iCanHasFlagsCopy = 1'b0;  // copied into clk domain
 	logic[25:0] watchdogCounter;          // 2^27/40MHz = ~3.36 seconds %25:0
 	logic       watchdogTriggered;
 	
@@ -248,33 +248,38 @@ module spi #(parameter NUM_TRACKS = 4)
 			readData <= {readData[(`PACKET_SIZE*NUM_TRACKS)-2:0], sdi};
 			dataCount <= dataCount + 32'b1;
 			if((dataCount + 32'b1) == (`PACKET_SIZE*NUM_TRACKS))
-					icanHasFlags <= 1'b1;
-			else	icanHasFlags <= 1'b0;
+					iCanHasFlags <= 1'b1;
+			else	iCanHasFlags <= 1'b0;
 		end
 	end
 	
 	always_ff @(posedge clk) begin
-		if(~chipSelect) begin // copy over from sck domain if cs is low
+		// copy over from sck domain if cs is low:
+		if(reset) begin
+			readDataCopy      <= {NUM_TRACKS*`PACKET_SIZE{1'b0}};
+			iCanHasFlagsCopy  <= 1'b0;
+		end else if(~chipSelect) begin
 			readDataCopy     <= readData;
-			icanHasFlagsCopy <= icanHasFlags;
+			iCanHasFlagsCopy <= iCanHasFlags;
 		end
 		
+		// update note packets when valid and keep track of watchdog:
 		if(reset) begin
 			notePackets       <= {NUM_TRACKS*`PACKET_SIZE{1'b0}};
 			watchdogCounter   <= 26'b0;
 			watchdogTriggered <=  1'b0;
 		end else begin
 			if(&watchdogCounter & (readDataCopy == lastReadData)) begin
-				watchdogTriggered <=  1'b1;               // stop playing if watchdog counter at max val
+				watchdogTriggered <=  1'b1; // stop playing if watchdog counter at max val
 			end else begin
 				watchdogCounter <= watchdogCounter + 26'b1;
 			end
-			if(icanHasFlagsCopy) begin                   // if the packet is valid, update tracks
-				if(watchdogTriggered) begin               // if watchdog triggered, don't play
-					notePackets <= {NUM_TRACKS*`PACKET_SIZE{1'b0}};
-				end else begin                            // otherwise update tracks with current note
-					notePackets <= readDataCopy;
-				end
+			if(iCanHasFlagsCopy & ~watchdogTriggered) begin
+				notePackets <= readDataCopy; // if the packet is valid, update tracks with current note
+			end else begin
+				notePackets <= {NUM_TRACKS*`PACKET_SIZE{1'b0}}; // if watchdog is triggered, don't play
+			end
+			if(iCanHasFlagsCopy) begin
 				lastReadData <= readDataCopy;
 				if(~(readDataCopy == lastReadData)) begin // if we've recieved a new packet, feed watchdog
 					watchdogCounter   <= 26'b0;
