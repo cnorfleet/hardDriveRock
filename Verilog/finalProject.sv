@@ -4,7 +4,7 @@
 
 // method of producing output signal from amplitude:
 `define USING_PWM
-// `define USING_PDM
+//`define USING_PDM
 
 `define PACKET_SIZE 24 // bits of data per track in each packet
 typedef logic[`PACKET_SIZE-1:0] packetType;
