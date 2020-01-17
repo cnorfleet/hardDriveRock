@@ -4,20 +4,20 @@
 
 typedef enum logic { PWM, PDM } OUTPUT_TYPES;
 
-`define NUM_TRACKS 4   // number of tracks (and tone generators) used
 `define PACKET_SIZE 24 // bits of data per track in each packet
-`define OUTPUT_TYPE (PWM)
 typedef logic[`PACKET_SIZE-1:0] packetType;
 
-module top(input  logic                  clk, reset,
-			  input  logic                  chipSelect, sck, sdi,
-			  output logic[`NUM_TRACKS-1:0] leftHigh, leftEn, rightHigh, rightEn);
+module top #(parameter NUM_TRACKS  = 4,   // number of tracks (and tone generators) used
+				 parameter OUTPUT_TYPE = PWM) // method of producing output signal from amplitude
+				(input  logic                 clk, reset,
+				 input  logic                 chipSelect, sck, sdi,
+				 output logic[NUM_TRACKS-1:0] leftHigh, leftEn, rightHigh, rightEn);
 	
-	packetType[`NUM_TRACKS-1:0] notePackets;
+	packetType[NUM_TRACKS-1:0] notePackets;
 	
-	spi s(clk, reset, chipSelect, sck, sdi, notePackets);
+	spi #(NUM_TRACKS) s(clk, reset, chipSelect, sck, sdi, notePackets);
 	
-	noteCore nc[`NUM_TRACKS-1:0](
+	noteCore #(OUTPUT_TYPE) nc[NUM_TRACKS-1:0](
 	 .clk        ( clk ),         // single bit replicated across instance array
 	 .reset      ( reset ),
 	 .notePacket ( notePackets ), // connected logic wider than port so split across instances
@@ -29,9 +29,10 @@ module top(input  logic                  clk, reset,
 	
 endmodule
 
-module noteCore(input  logic      clk, reset,
-					 input  packetType notePacket,
-					 output logic      leftHigh, leftEn, rightHigh, rightEn);
+module noteCore #(parameter OUTPUT_TYPE = PWM)
+					  (input  logic      clk, reset,
+						input  packetType notePacket,
+						output logic      leftHigh, leftEn, rightHigh, rightEn);
 	// tone generator for one track
 	
 	logic[15:0] tuneWord;   // frequency of note signal
@@ -58,7 +59,7 @@ module noteCore(input  logic      clk, reset,
 	assign magnitude = (mult[7] & ~&mult[15:8]) ? (mult[15:8] + 8'b1) : (mult[15:8]);
 	// ^ note: rounding with saturation
 	
-//	if(`OUTPUT_TYPE === PWM) // TODO: figure out how to do this conditionally
+//	if(OUTPUT_TYPE === PWM) // TODO: figure out how to do this conditionally
 		pwmGen pg(clk, reset, magnitude, wgEn, waveOut);
 //	else
 //		pdmGen pg(clk, reset, magnitude, wgEn, waveOut);
@@ -147,11 +148,12 @@ module pdmGen(input  logic      clk, reset,
 	end
 	assign wgEn = (waveCounter == 8'b0);
 	
-	logic[8:0] acc;
+	logic[8:0] acc, nextAcc;
+	assign nextAcc = ({1'b0, acc[7:0]} + {1'b0, magnitude});
 	always_ff @(posedge clk) begin
 		if(reset) acc <= 9'b0;
-		else      acc <=      ({1'b0, acc[7:0]} + {1'b0, magnitude});
-		waveOut <= (~reset & (({1'b0, acc[7:0]} + {1'b0, magnitude})[8]));
+		else      acc <= nextAcc;
+		waveOut <= (~reset & nextAcc[8]);
 		// assert output when acc overflows.  this means that the density with
 		// which output is high reflects the amplitude
 	end
@@ -178,9 +180,10 @@ module outputGen(input  logic clk, reset,
 	
 endmodule
 
-module spi(input  logic clk, reset,
-			  input  logic chipSelect, sck, sdi,
-			  output packetType[`NUM_TRACKS-1:0] notePackets);
+module spi #(parameter NUM_TRACKS = 4)
+				(input  logic clk, reset,
+				 input  logic chipSelect, sck, sdi,
+				 output packetType[NUM_TRACKS-1:0] notePackets);
 	// Accepts frequency and volume input over SPI from ATSAM
 	// Internal freq and volume only updated after full packet recieved
 	// Note: contains ~3.4 second watchdog timer (turns off music)
@@ -198,18 +201,18 @@ module spi(input  logic clk, reset,
 	logic[25:0] watchdogCounter;          // 2^27/40MHz = ~3.36 seconds %25:0
 	logic       watchdogTriggered;
 	
-	logic[(`PACKET_SIZE*`NUM_TRACKS)-1:0] readData;     // data recieved over SPI
-	logic[(`PACKET_SIZE*`NUM_TRACKS)-1:0] readDataCopy; // copied into clk domain
-	logic[(`PACKET_SIZE*`NUM_TRACKS)-1:0] lastReadData; // internal memory for feeding watchdog
+	logic[(`PACKET_SIZE*NUM_TRACKS)-1:0] readData;     // data recieved over SPI
+	logic[(`PACKET_SIZE*NUM_TRACKS)-1:0] readDataCopy; // copied into clk domain
+	logic[(`PACKET_SIZE*NUM_TRACKS)-1:0] lastReadData; // internal memory for feeding watchdog
 	
 	always_ff @(posedge sck or negedge chipSelect) begin
 		if(~chipSelect) begin          
 			dataCount    <= 32'b0;
 		end
 		else begin
-			readData <= {readData[(`PACKET_SIZE*`NUM_TRACKS)-2:0], sdi};
+			readData <= {readData[(`PACKET_SIZE*NUM_TRACKS)-2:0], sdi};
 			dataCount <= dataCount + 32'b1;
-			if((dataCount + 32'b1) == (`PACKET_SIZE*`NUM_TRACKS))
+			if((dataCount + 32'b1) == (`PACKET_SIZE*NUM_TRACKS))
 					icanHasFlags <= 1'b1;
 			else	icanHasFlags <= 1'b0;
 		end
@@ -222,7 +225,7 @@ module spi(input  logic clk, reset,
 		end
 		
 		if(reset) begin
-			notePackets       <= {`NUM_TRACKS*`PACKET_SIZE{1'b0}};
+			notePackets       <= {NUM_TRACKS*`PACKET_SIZE{1'b0}};
 			watchdogCounter   <= 26'b0;
 			watchdogTriggered <=  1'b0;
 		end else begin
@@ -233,7 +236,7 @@ module spi(input  logic clk, reset,
 			end
 			if(icanHasFlagsCopy) begin                   // if the packet is valid, update tracks
 				if(watchdogTriggered) begin               // if watchdog triggered, don't play
-					notePackets <= {`NUM_TRACKS*`PACKET_SIZE{1'b0}};
+					notePackets <= {NUM_TRACKS*`PACKET_SIZE{1'b0}};
 				end else begin                            // otherwise update tracks with current note
 					notePackets <= readDataCopy;
 				end
