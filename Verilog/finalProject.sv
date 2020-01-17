@@ -37,15 +37,16 @@ module top #(parameter NUM_INPUTS  = 4, // number of tracks (tone generators)
 	
 	// convert two inputs into one output:
 	// TODO: organize this into a nice configurable module or something
-	logic[9:0] magnitude0, magnitude1, magSum;
+	logic[9:0] magnitude0, magnitude1, magSum, magSumTwosComplement;
 	logic[7:0] outputMagnitude;
 	logic      outputSign;
 	// note: first convert to two's complement for easy addition
 	assign magnitude0 = {{2{sign[0]}}, (~(sign[0]) ? magnitude[0] : ~(magnitude[0]))} + (sign[0]);
 	assign magnitude1 = {{2{sign[1]}}, (~(sign[1]) ? magnitude[1] : ~(magnitude[1]))} + (sign[1]);
 	assign magSum = magnitude0 + magnitude1;
+	assign magSumTwosComplement = (~magSum + 10'b1);
 	assign outputSign = magSum[9];
-	assign outputMagnitude = ~outputSign ? magSum[8:1] : {(~magSum + 10'b1)}[8:1];
+	assign outputMagnitude = ~outputSign ? magSum[8:1] : magSumTwosComplement[8:1];
 	
 	outputChannel oc[NUM_OUTPUTS-1:0](
 	 .clk         ( clk ),
@@ -126,13 +127,15 @@ module waveGen(input  logic clk, reset, wgEn,
 	// only changes frequency at end of wave (every other zero crossing)
 	
 	logic[15:0] phaseAcc;             // phase accumulator
+	logic[13:0] flippedPhase;         // phase "flipped" for segments of wave which are read backwards
 	logic[7:0]  LUTsine[(2**10-1):0]; // look up table
 	logic[15:0] currentTuneWord;
 	
 	logic nextSign;
 	logic[9:0] nextPhase;
 	assign nextSign = phaseAcc[15]; // neg in second half
-	assign nextPhase = (phaseAcc[14]) ? (10'b0 - phaseAcc[13:4]) : (phaseAcc[13:4]);
+	assign flippedPhase = 14'b0 - phaseAcc[13:0];
+	assign nextPhase = (phaseAcc[14]) ? (flippedPhase[13:4]) : (phaseAcc[13:4]);
 	// ^ note that phase is adjusted since we're using a 1/4 phase LUT
 	
 	always_ff @(posedge clk) begin
