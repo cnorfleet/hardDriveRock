@@ -17,7 +17,7 @@ module top #(parameter NUM_INPUTS  = 4, // number of tracks (tone generators)
 	
 	packetType[NUM_INPUTS-1:0] notePackets; // spi packets for each track
 	logic     [NUM_INPUTS-1:0] sign;        // note signal sign for each track
-	logic[7:0][NUM_INPUTS-1:0] magnitude;   // magnitude of note signal (multiplied with volume)
+	logic[NUM_INPUTS-1:0][7:0] magnitude;   // magnitude of note signal (multiplied with volume)
 	
 	logic[7:0] waveCounter; // keeps track of position between amplitude updates, needed for PWM
 	logic      wgEn;        // interrrupt to request next amplitude from waveGen
@@ -35,11 +35,23 @@ module top #(parameter NUM_INPUTS  = 4, // number of tracks (tone generators)
 	
 	amplitudeUpdateCounter auc(clk, reset, waveCounter, wgEn);
 	
+	// convert two inputs into one output:
+	// TODO: organize this into a nice configurable module or something
+	logic[9:0] magnitude0, magnitude1, magSum;
+	logic[7:0] outputMagnitude;
+	logic      outputSign;
+	// note: first convert to two's complement for easy addition
+	assign magnitude0 = {{2{sign[0]}}, (~(sign[0]) ? magnitude[0] : ~(magnitude[0]))} + (sign[0]);
+	assign magnitude1 = {{2{sign[1]}}, (~(sign[1]) ? magnitude[1] : ~(magnitude[1]))} + (sign[1]);
+	assign magSum = magnitude0 + magnitude1;
+	assign outputSign = magSum[9];
+	assign outputMagnitude = ~outputSign ? magSum[8:1] : {(~magSum + 10'b1)}[8:1];
+	
 	outputChannel oc[NUM_OUTPUTS-1:0](
 	 .clk         ( clk ),
 	 .reset       ( reset ),
-	 .sign        ( sign ),
-	 .magnitude   ( magnitude ),
+	 .sign        ( outputSign ),
+	 .magnitude   ( outputMagnitude ),
 	 .waveCounter ( waveCounter ),
 	 .leftHigh    ( leftHigh ),
 	 .leftEn      ( leftEn ),

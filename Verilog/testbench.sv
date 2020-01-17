@@ -1,4 +1,4 @@
-`define NUM_INPUTS   1   // number of tracks (and tone generators) used
+`define NUM_INPUTS   2   // number of tracks (and tone generators) used
 `define NUM_OUTPUTS  1   // number of output channels used
 `define PACKET_SIZE  24  // bits of data per track in each packet
 `define FILTER_WIDTH 256 // 2^8 clock cycles between amplitude changes so good filter width
@@ -23,6 +23,8 @@ module testbench();
     initial begin
 			if(`NUM_INPUTS == 1)
 				packet <= 24'h0114ff;
+			else if (`NUM_INPUTS == 2)
+				packet <= 48'h0114ff0217ff;
 			else
 				packet <= 96'h0114ff0217ff0114ff0217ff;
 			reset <= 1'b1; #22; reset <= 1'b0;
