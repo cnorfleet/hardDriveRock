@@ -1,4 +1,4 @@
-`define NUM_TRACKS 4   // number of tracks (and tone generators) used
+`define NUM_TRACKS 1   // number of tracks (and tone generators) used
 `define PACKET_SIZE 24 // bits of data per track in each packet
 
 typedef enum logic { PWM, PDM } OUTPUT_TYPES;
@@ -8,6 +8,13 @@ module testbench();
 	 logic[`NUM_TRACKS-1:0] A, B, C, D;
     logic[(`PACKET_SIZE*`NUM_TRACKS)-1:0] packet;
     integer i;
+	 
+	 // low-pass filter of output signal in order to check that it's working right
+`define FILTER_WIDTH 256 // 2^8 clock cycles between amplitude changes so good filter width
+	 logic lastOutputs[`FILTER_WIDTH];
+	 integer sumOfLastOutputs;
+	 assign sumOfLastOutputs = lastOutputs.sum();
+	 assign lowPassFilteredOutput = sumOfLastOutputs / `FILTER_WIDTH;
     
     // device under test
     top #(`NUM_TRACKS, PWM) dut (clk, reset, cs, sck, sdi, A, B, C, D);
@@ -31,7 +38,7 @@ module testbench();
     initial begin
       i = 0; sck = 0;
       cs<=1'b1; #1; cs <= 1'b0; #23; cs <= 1'b1;
-    end 
+    end
     
     // shift in test vectors over SPI
     always @(posedge clk) begin
@@ -42,6 +49,7 @@ module testbench();
 			  #1; sck = 1; #5; sck = 0;
 			end
 			i = i + 1;
+			lastOutputs[(i % `FILTER_WIDTH)] = dut.nc[0].waveOut;
 		end
 	 end
     
