@@ -12,9 +12,10 @@ module testbench();
 	 // low-pass filter of output signal in order to check that it's working right
 `define FILTER_WIDTH 256 // 2^8 clock cycles between amplitude changes so good filter width
 	 logic lastOutputs[`FILTER_WIDTH];
-	 integer sumOfLastOutputs;
-	 assign sumOfLastOutputs = lastOutputs.sum();
-	 assign lowPassFilteredOutput = sumOfLastOutputs / `FILTER_WIDTH;
+	 int lowPassFilteredOutput;
+	 assign lowPassFilteredOutput = lastOutputs.sum with (int'(item)); // don't need: "/ `FILTER_WIDTH";
+	 // ^ note that we need to cast the output to an int before summing
+	 // so that we don't just get a one-bit sum with a lot of overflowing
     
     // device under test
     top #(`NUM_TRACKS, PWM) dut (clk, reset, cs, sck, sdi, A, B, C, D);

@@ -59,10 +59,13 @@ module noteCore #(parameter OUTPUT_TYPES OUTPUT_TYPE = PWM)
 	assign magnitude = (mult[7] & ~&mult[15:8]) ? (mult[15:8] + 8'b1) : (mult[15:8]);
 	// ^ note: rounding with saturation
 	
-//	if(OUTPUT_TYPE === PWM) // TODO: figure out how to do this conditionally
+	// generate our waveOut signal using the method of choice from OUTPUT_TYPES
+	if(OUTPUT_TYPE==PWM) begin :generate_block
 		pwmGen pg(clk, reset, magnitude, wgEn, waveOut);
-//	else
-//		pdmGen pg(clk, reset, magnitude, wgEn, waveOut);
+	end :generate_block
+	else begin :generate_block
+		pdmGen pg(clk, reset, magnitude, wgEn, waveOut);
+	end :generate_block
 	
 	outputGen og(clk, reset, waveOut, sign, leftHigh, leftEn, rightHigh, rightEn);
 	
