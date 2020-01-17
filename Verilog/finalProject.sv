@@ -7,8 +7,8 @@ typedef enum logic { PWM, PDM } OUTPUT_TYPES;
 `define PACKET_SIZE 24 // bits of data per track in each packet
 typedef logic[`PACKET_SIZE-1:0] packetType;
 
-module top #(parameter NUM_TRACKS  = 4,   // number of tracks (and tone generators) used
-				 parameter OUTPUT_TYPE = PWM) // method of producing output signal from amplitude
+module top #(parameter              NUM_TRACKS  = 4,   // number of tracks (and tone generators) used
+				 parameter OUTPUT_TYPES OUTPUT_TYPE = PWM) // method of producing output signal from amplitude
 				(input  logic                 clk, reset,
 				 input  logic                 chipSelect, sck, sdi,
 				 output logic[NUM_TRACKS-1:0] leftHigh, leftEn, rightHigh, rightEn);
@@ -29,7 +29,7 @@ module top #(parameter NUM_TRACKS  = 4,   // number of tracks (and tone generato
 	
 endmodule
 
-module noteCore #(parameter OUTPUT_TYPE = PWM)
+module noteCore #(parameter OUTPUT_TYPES OUTPUT_TYPE = PWM)
 					  (input  logic      clk, reset,
 						input  packetType notePacket,
 						output logic      leftHigh, leftEn, rightHigh, rightEn);
