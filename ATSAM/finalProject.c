@@ -1,5 +1,6 @@
 // finalProject.c
-// cnorfleet@hmc.edu, emeike@hmc.edu 15 November 2019
+// Caleb Norfleet and Erik Meike
+// 15 November 2019
 //
 // Sends song notes and volumes to FPGA over SPI
 // Note: store song pitch in Hz, dur in ms
